@@ -9,6 +9,7 @@
 </head>
 
 <body>
+    <div class="station-selector" id="station-selector"></div>
     <div class="departures" id="departures-list">
         <table>
             <thead>
@@ -17,7 +18,7 @@
                     <th>Destination</th>
                     <th>Départ</th>
                     <th>Part dans</th>
-                    <th>Voie</th>
+                    <!-- <th>Voie</th> -->
                 </tr>
             </thead>
             <tbody id="departure-table-body">
@@ -27,7 +28,6 @@
 
     <script>
         const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
-        const apiUrl = 'https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:87212027/departures';
         const tableBody = document.getElementById("departure-table-body");
 
         function formatCountdown(countdown) {
@@ -67,7 +67,10 @@
             return num.toString().padStart(2, '0');
         }
 
-        function fetchTrainDepartures() {
+        function fetchTrainDepartures(apiUrl) {
+            while (tableBody.firstChild) {
+                tableBody.removeChild(tableBody.firstChild);
+            }
             fetch(apiUrl, {
                 method: "GET",
                 headers: {
@@ -95,24 +98,35 @@
                 const destinationCell = row.insertCell(1);
                 const realDepartureTimeCell = row.insertCell(2);
                 const countdownCell = row.insertCell(3);
-                const platformCell = row.insertCell(4);
-
+                //const platformCell = row.insertCell(4);
                 const displayInfo = departure.display_informations;
                 const stopDateTime = departure.stop_date_time;
-
+                const trainId = departure.links[1].id;
                 const baseDepartureTime = parseAndFormatDateTime(stopDateTime.base_departure_date_time);
+                const realDepartureTime = parseAndFormatDateTime(stopDateTime.departure_date_time);
 
-                platformCell.textContent = 'N/A';
+
+                const viewStopsButton = document.createElement("button");
+                viewStopsButton.textContent = "Voir les arrêts en gare";
+                viewStopsButton.addEventListener("click", () => {
+                    const trainId = hiddenInput.value;
+                    fetchTrainStops(trainId, destinationCell);
+                    viewStopsButton.remove();
+                });
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.value = trainId;
+
+                //platformCell.textContent = 'N/A';
 
                 trainNameCell.textContent = `${displayInfo.network} - N° ${displayInfo.headsign}`;
-                destinationCell.innerHTML = baseDepartureTime + " <strong>" + displayInfo.direction.split(' (')[0] + "</strong>";
-
-                const realDepartureTime = parseAndFormatDateTime(stopDateTime.departure_date_time);
+                destinationCell.innerHTML = baseDepartureTime + " <strong>" + displayInfo.direction.split(' (')[0] + "</strong><br>";
 
                 if (realDepartureTime > baseDepartureTime) {
                     const delayMinutes = calculateDelayInMinutes(realDepartureTime, baseDepartureTime);
                     realDepartureTimeCell.textContent = realDepartureTime;
-                    destinationCell.innerHTML = `<span class="delayed">${baseDepartureTime}</span> <strong>` + displayInfo.direction.split(' (')[0] + "</strong> (retardé de " + delayMinutes + " minutes)";
+                    destinationCell.innerHTML = `<span class="delayed">${baseDepartureTime}</span> <strong>` + displayInfo.direction.split(' (')[0] + "</strong> (retardé de " + delayMinutes + " minutes)<br>";
                 } else {
                     realDepartureTimeCell.textContent = realDepartureTime;
                 }
@@ -135,31 +149,51 @@
                     }
                 }, 1000);
 
-                const trainId = departure.links[1].id;
+                destinationCell.appendChild(viewStopsButton);
+                destinationCell.appendChild(hiddenInput);
 
-                fetch(`https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": apiKey,
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const stops = data.vehicle_journeys[0].stop_times.map(stop => stop.stop_point.name);
-                        destinationCell.innerHTML += "<br>" + stops.join(" - ");
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
             });
         }
 
-        fetchTrainDepartures();
+        function fetchTrainStops(trainId, destinationCell) {
+            fetch(`https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": apiKey,
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const stops = data.vehicle_journeys[0].stop_times.map(stop => stop.stop_point.name);
+                destinationCell.innerHTML += "<div class=\"train-stops\">" + stops.join(" - ") + "</div>";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        const stationCodes = {
+            "Strasbourg": "87212027",
+            "Sélestat": "87214056",
+            "Strasbourg-Roethig": "87212191",
+        };
+
+        const stationSelector = document.getElementById("station-selector");
+
+        for (const stationName in stationCodes) {
+            const button = document.createElement("button");
+            button.textContent = stationName;
+            button.addEventListener("click", () => {
+                const apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
+                fetchTrainDepartures(apiUrl);
+            });
+            stationSelector.appendChild(button);
+        }
 
     </script>
 </body>

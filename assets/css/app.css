@@ -1,20 +1,86 @@
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%)
+  }
+
+  to {
+    transform: translateX(-100%)
+  }
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
+  table-layout: auto
 }
 
-th,
-td {
+td,
+th {
+  max-width: 500px;
   border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
+  padding: 8px
 }
 
 th {
   background-color: #f2f2f2;
+  white-space: nowrap;
+  width: auto
+}
+
+td {
+  text-align: left;
+  position: relative;
+  overflow: hidden
 }
 
 .delayed {
   text-decoration: line-through;
-  color: red;
+  color: red
+}
+
+.station-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: row wrap;
+  margin: 20px 0
+}
+
+button {
+  background: #fff;
+  color: #000;
+  border: 0;
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background-color .3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, .2), 0 1px 3px rgba(0, 0, 0, .2);
+  border-radius: 10px
+}
+
+button:hover {
+  background-color: #d0d0d0
+}
+
+td button {
+  padding: 5px 10px
+}
+
+.train-stops {
+  white-space: nowrap;
+  animation: scrollText 20s linear infinite
+}
+
+@media (max-width:768px) {
+  .train-stops {
+    white-space: normal;
+    animation: none;
+    font-size: smaller
+  }
+
+  td,
+  th {
+    max-width: none
+  }
 }
