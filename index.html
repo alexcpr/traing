@@ -5,30 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pitaing vite le traing</title>
-    <link rel="stylesheet" href="./assets/css/app.css?v=a28a5209eadb">
+    <link rel="stylesheet" href="./assets/css/app.css?v=a28a5209eadc">
 </head>
 
 <body>
-    <div class="station-selector" id="station-selector"></div>
-    <div class="departures" id="departures-list">
-        <table>
-            <thead>
-                <tr>
-                    <th>Train</th>
-                    <th>Destination</th>
-                    <th>Départ</th>
-                    <th>Part dans</th>
-                    <!-- <th>Voie</th> -->
-                </tr>
-            </thead>
-            <tbody id="departure-table-body">
-            </tbody>
-        </table>
+    <div class="main-container">
+        <div class="station-selector" id="station-selector"></div>
+        <div class="departures" id="departures-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Train</th>
+                        <th>Destination</th>
+                        <th>Départ</th>
+                        <th>Part dans</th>
+                        <!-- <th>Voie</th> -->
+                    </tr>
+                </thead>
+                <tbody id="departure-table-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="more-departures">
+            <input type="hidden" id="lastTrainDepartureInput" value="" />
+            <button id="more-departures">⬇️ Plus tard</button>
+        </div>
     </div>
 
     <script>
         const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
         const tableBody = document.getElementById("departure-table-body");
+        let apiUrl = "";
 
         function formatCountdown(countdown) {
             const minutes = Math.floor(countdown / 60000);
@@ -85,6 +92,8 @@
                 })
                 .then(data => {
                     displayDepartures(data.departures);
+                    const moreDeparturesButton = document.getElementById("more-departures");
+                    moreDeparturesButton.style.display = data.departures.length > 0 ? "block" : "none";
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -120,6 +129,8 @@
 
                 //platformCell.textContent = 'N/A';
 
+                countdownCell.textContent = "...";
+
                 trainNameCell.textContent = `${displayInfo.network} - N° ${displayInfo.headsign}`;
                 destinationCell.innerHTML = baseDepartureTime + " <strong>" + displayInfo.direction.split(' (')[0] + "</strong><br>";
 
@@ -153,6 +164,13 @@
                 destinationCell.appendChild(hiddenInput);
 
             });
+            const lastTrainDeparture = departures[departures.length - 1].stop_date_time.departure_date_time;
+
+            const hiddenInput = document.getElementById("lastTrainDepartureInput");
+            if (hiddenInput) {
+                hiddenInput.value = lastTrainDeparture;
+            }
+
         }
 
         function fetchTrainStops(trainId, destinationCell) {
@@ -162,20 +180,32 @@
                     "Authorization": apiKey,
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const stops = data.vehicle_journeys[0].stop_times.map(stop => stop.stop_point.name);
-                destinationCell.innerHTML += "<div class=\"train-stops\">" + stops.join(" - ") + "</div>";
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const stops = data.vehicle_journeys[0].stop_times.map(stop => stop.stop_point.name);
+                    const stopsHTML = createStopsHTML(stops);
+                    destinationCell.innerHTML += stopsHTML;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
+
+        function createStopsHTML(stops) {
+            let stopsHTML = "<ul class=\"train-stops\">";
+            stops.forEach(stop => {
+                stopsHTML += `<li class="train-stop">${stop}</li>`;
+            });
+            stopsHTML += "</ul>";
+
+            return stopsHTML;
+        }
+
 
         const stationCodes = {
             "Strasbourg": "87212027",
@@ -189,11 +219,20 @@
             const button = document.createElement("button");
             button.textContent = stationName;
             button.addEventListener("click", () => {
-                const apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
+                apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
                 fetchTrainDepartures(apiUrl);
             });
             stationSelector.appendChild(button);
         }
+
+        const moreDeparturesButton = document.getElementById("more-departures");
+
+        moreDeparturesButton.addEventListener("click", () => {
+            const lastTrainDepartureTime = document.querySelector('.more-departures input[type="hidden"]').value;
+            const apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
+            fetchTrainDepartures(apiUrlWithDatetime);
+        });
+
 
     </script>
 </body>
