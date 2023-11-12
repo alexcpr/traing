@@ -340,8 +340,8 @@ function fetchTrainStops(trainId, destinationCell) {
   })
     .then(handleResponse)
     .then((data) => {
-      const stops = data.vehicle_journeys[0].stop_times.map(
-        (stop) => stop.stop_point.name
+      const stops = data.vehicle_journeys[0].stop_times.map((stop) =>
+        stop.stop_point.name.replace(/\s*-\s*/g, "-")
       );
       destinationCell.innerHTML = stops.join(" - ");
     })
