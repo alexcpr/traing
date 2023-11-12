@@ -378,3 +378,21 @@ moreDeparturesButton.addEventListener("click", () => {
   const apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
   fetchTrainDepartures(apiUrlWithDatetime);
 });
+
+window.onscroll = function () {
+  if (
+    document.body.scrollTop > 100 ||
+    document.documentElement.scrollTop > 100
+  ) {
+    document.getElementById("back-to-top-btn").style.display = "block";
+  } else {
+    document.getElementById("back-to-top-btn").style.display = "none";
+  }
+};
+
+document
+  .getElementById("back-to-top-btn")
+  .addEventListener("click", function () {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  });
