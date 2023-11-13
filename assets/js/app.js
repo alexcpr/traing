@@ -356,17 +356,110 @@ const stationCodes = {
   "Strasbourg-Roethig": "87212191",
 };
 
-const stationSelector = document.getElementById("station-selector");
+const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+const chooseStationBtn = document.getElementById("chooseStationBtn");
+const closeModalBtn = document.getElementById("closeModal");
 
-for (const stationName in stationCodes) {
+chooseStationBtn.addEventListener("click", () => {
+  openModal();
+});
+
+closeModalBtn.addEventListener("click", () => {
+  closeModal();
+});
+
+function openModal() {
+  modal.style.display = "flex";
+  document.getElementById("modal-content").innerHTML = "";
+  renderNonFavoriteStationButtons();
+  renderCloseButton();
+  modal.classList.add("fade-in");
+}
+
+function closeModal() {
+  modal.classList.remove("fade-in");
+  modal.classList.add("fade-out");
+  setTimeout(() => {
+    modal.style.display = "none";
+    modal.classList.remove("fade-out");
+  }, 300);
+}
+
+function renderCloseButton() {
+  const closeButton = document.createElement("button");
+  closeButton.innerText = "Fermer";
+  closeButton.addEventListener("click", closeModal);
+  document.getElementById("modal-content").appendChild(closeButton);
+}
+
+function renderStationButton(stationName, isFavorite) {
   const button = document.createElement("button");
-  button.textContent = stationName;
-  button.addEventListener("click", () => {
-    apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
-    scheduleContainer.innerHTML = "";
-    fetchTrainDepartures(apiUrl);
+  button.className = isFavorite ? "station-btn favorite" : "station-btn";
+  button.setAttribute("data-station", stationName);
+  button.innerHTML = isFavorite
+    ? `<span class="star">&#9733;</span> ${stationName}`
+    : `<span class="star">&#9734;</span> ${stationName}`;
+  button.addEventListener("click", (event) => {
+    const star = event.target.closest(".star");
+    if (star) {
+      toggleFavorite(stationName);
+      updateStationButtons();
+      closeModal();
+    } else {
+      closeModal();
+      console.log(stationCodes[stationName]);
+      apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
+      scheduleContainer.innerHTML = "";
+      fetchTrainDepartures(apiUrl);
+    }
   });
-  stationSelector.appendChild(button);
+  !isFavorite
+    ? document.getElementById("modal-content").appendChild(button)
+    : document.getElementById("station-selector").appendChild(button);
+}
+
+function renderNonFavoriteStationButtons() {
+  for (const stationName in stationCodes) {
+    if (!favorites.includes(stationName)) {
+      renderStationButton(stationName, false);
+    }
+  }
+}
+
+function updateStationButtons() {
+  const stationSelector = document.getElementById("station-selector");
+  stationSelector.innerHTML = "";
+  renderFavoriteStationButtons();
+}
+
+function toggleFavorite(stationName) {
+  const index = favorites.indexOf(stationName);
+  if (index !== -1) {
+    favorites.splice(index, 1);
+  } else {
+    favorites.push(stationName);
+  }
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+}
+
+function renderFavoriteStationButtons() {
+  favorites.forEach((stationName) => {
+    renderStationButton(stationName, true);
+  });
+}
+
+window.addEventListener("load", () => {
+  renderFavoriteStationButtons();
+});
+
+window.addEventListener("click", closeOnOutsideClick);
+window.addEventListener("touchstart", closeOnOutsideClick);
+
+function closeOnOutsideClick(event) {
+  const modal = document.querySelector(".modal");
+  if (event.target === modal) {
+    closeModal();
+  }
 }
 
 const moreDeparturesButton = document.getElementById("more-departures");
