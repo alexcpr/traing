@@ -363,6 +363,7 @@ h1 {
 }
 
 #back-to-top-btn {
+  display: none;
   position: fixed;
   bottom: 20px;
   left: 10px;
