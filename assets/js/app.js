@@ -381,8 +381,8 @@ moreDeparturesButton.addEventListener("click", () => {
 
 window.onscroll = function () {
   if (
-    document.body.scrollTop > 100 ||
-    document.documentElement.scrollTop > 100
+    document.body.scrollTop > 350 ||
+    document.documentElement.scrollTop > 350
   ) {
     document.getElementById("back-to-top-btn").style.display = "block";
   } else {
