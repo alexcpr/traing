@@ -159,8 +159,8 @@ h1 {
 .schedule-item button {
   font-weight: 700;
   padding: 4px 10px;
-  font-size: 11px;
-  width: unset;
+  font-size: 11px !important;
+  width: unset !important;
   margin-left: 10px;
   margin-bottom: 10px;
   margin-top: 0
@@ -169,6 +169,31 @@ h1 {
 @media (max-width:768px) {
   .main-container {
     margin: 20px
+  }
+
+  .departure-direction {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-flow: column wrap;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+    -ms-flex-flow: column wrap;
+    flex-flow: column wrap
+  }
+
+  .departure-arrow {
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    transform: none !important;
+    height: unset !important;
+    padding: 0 !important
   }
 
   .more-departures,
@@ -283,7 +308,12 @@ h1 {
   -webkit-justify-content: center;
   -moz-box-pack: center;
   -ms-flex-pack: center;
-  justify-content: center
+  justify-content: center;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -moz-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1
 }
 
 .train-code {
