@@ -532,6 +532,7 @@ h1 {
 }
 
 .modal {
+  display: none;
   opacity: 0;
   pointer-events: none;
   position: fixed;
