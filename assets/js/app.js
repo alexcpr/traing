@@ -1,3 +1,172 @@
+const stationCodes = {
+  "Munster Badischhof": "87386540",
+  "Krimmeri Meinau": "87338525",
+  Diemeringen: "87215665",
+  Berthelming: "87215335",
+  Saales: "87214783",
+  Mullerhof: "87214643",
+  "Heiligenberg - Mollkirch": "87214627",
+  Mutzig: "87214585",
+  Bischoffsheim: "87214296",
+  Gertwiller: "87214254",
+  Eichhoffen: "87214239",
+  Matzenheim: "87214130",
+  Kogenheim: "87214114",
+  Ingwiller: "87213785",
+  "Obermodern-Zutzendorf": "87213165",
+  Kilstett: "87212324",
+  Bischheim: "87212308",
+  Limersheim: "87212274",
+  Geispolsheim: "87212258",
+  "Strasbourg Roethig": "87212191",
+  Schwindratzheim: "87212159",
+  Strasbourg: "87212027",
+  Belfort: "87184002",
+  Bantzenheim: "87182840",
+  Ranspach: "87182402",
+  "Gunsbach - Griesbach": "87182386",
+  Illfurth: "87182204",
+  "Mulhouse Dornach": "87534321",
+  "Saint-Gilles Lycée Haut-Rhin": "87181552",
+  Flaxlanden: "87181040",
+  "Hoenheim Tram": "87338517",
+  Sarrebourg: "87215012",
+  Dachstein: "87214551",
+  Rosheim: "87214320",
+  Scherwiller: "87214205",
+  Sélestat: "87214056",
+  Marienthal: "87213603",
+  Riedseltz: "87213462",
+  Mertzwiller: "87213207",
+  Munchhausen: "87212449",
+  Roeschwoog: "87212407",
+  Clerval: "87184622",
+  "L'Isle-sur-le-Doubs": "87184572",
+  "Montreux-Vieux": "87184275",
+  "Muhlbach-sur-Munster": "87182733",
+  Wesserling: "87182618",
+  "Saint-Amarin": "87182600",
+  "Willer-sur-Thur": "87182584",
+  "Wihr-au-Val - Soultzbach": "87182378",
+  "Saint-Louis": "87182139",
+  Colmar: "87182014",
+  "Vieux-Thann Zone Industrielle": "87181289",
+  Walheim: "87181065",
+  "Saint-Louis La Chaussée": "87181016",
+  "Thann Centre": "87472605",
+  "Colmar Mésanges": "87402297",
+  "Ingersheim Cité Scolaire": "87303875",
+  Rothau: "87214726",
+  Obernai: "87214288",
+  "Dambach-la-Ville": "87214213",
+  Benfeld: "87214122",
+  Kurtzenhouse: "87213660",
+  "Soultz-sous-Forêts": "87213421",
+  Hoelschloch: "87213413",
+  "Niederbronn-les-Bains": "87213256",
+  Haguenau: "87213058",
+  Mothern: "87212456",
+  Steinbourg: "87212209",
+  Brumath: "87212134",
+  Héricourt: "87184507",
+  "Petit-Croix": "87184267",
+  Raedersheim: "87182717",
+  Lutterbach: "87182667",
+  Breitenbach: "87534347",
+  Oderen: "87182634",
+  Fellering: "87182626",
+  Thann: "87182568",
+  Turckheim: "87182352",
+  Logelbach: "87182345",
+  Rouffach: "87182337",
+  Zillisheim: "87182196",
+  Bartenheim: "87182113",
+  Habsheim: "87182089",
+  "Colmar Saint-Joseph": "87181222",
+  "Mulhouse Musées": "87534339",
+  "Mulhouse Zu Rhein": "87472639",
+  Oermingen: "87215632",
+  Lutzelbourg: "87215160",
+  Réding: "87215079",
+  Fouday: "87214734",
+  "Schirmeck - La Broque": "87214692",
+  "Russ Hersbach": "87214684",
+  Duppigheim: "87214536",
+  Goxwiller: "87214270",
+  "Wingen-sur-Moder": "87213744",
+  Hoerdt: "87213686",
+  Weyersheim: "87213678",
+  Bischwiller: "87213611",
+  Hoffen: "87213447",
+  Reichshoffen: "87213249",
+  "Schweighouse-sur-Moder": "87213108",
+  Seltz: "87212431",
+  Roppenheim: "87212415",
+  Rountzenheim: "87212373",
+  Sessenheim: "87212365",
+  Drusenheim: "87212357",
+  "La Wantzenau": "87212316",
+  Graffenstaden: "87212241",
+  Hochfelden: "87212167",
+  Mommenheim: "87212142",
+  Vendenheim: "87212118",
+  Mundolsheim: "87212100",
+  Montbéliard: "87184523",
+  Metzeral: "87182816",
+  Kruth: "87182642",
+  "Cernay (Haut-Rhin)": "87182410",
+  Munster: "87182394",
+  Dannemarie: "87182253",
+  Sierentz: "87182105",
+  Mulhouse: "87182063",
+  "Mulhouse Dornach": "87182055",
+  "Tieffenbach - Struth": "87215699",
+  "Bourg-Bruche": "87214775",
+  "Saint-Blaise-la-Roche Poutay": "87214742",
+  Wisches: "87214676",
+  Lutzelhouse: "87214650",
+  Urmatt: "87214635",
+  Gresswiller: "87214593",
+  Molsheim: "87214577",
+  Duttlenheim: "87214544",
+  "Entzheim Aéroport": "87214528",
+  Lingolsheim: "87214502",
+  Dorlisheim: "87214338",
+  Barr: "87214247",
+  Epfig: "87214221",
+  Erstein: "87214148",
+  Ebersheim: "87214106",
+  Wissembourg: "87213470",
+  Walbourg: "87213405",
+  Gundershoffen: "87213223",
+  Lauterbourg: "87212464",
+  Herrlisheim: "87212340",
+  Gambsheim: "87212332",
+  "Fegersheim - Lipsheim": "87212266",
+  Saverne: "87212225",
+  Dettwiller: "87212183",
+  Wilwisheim: "87212175",
+  Stephansfeld: "87212126",
+  "Colombier-Fontaine": "87184556",
+  Voujeaucourt: "87184531",
+  "Trois Chênes": "87184242",
+  "Bas Évette": "87184200",
+  "Thann Saint-Jacques": "87182881",
+  Merxheim: "87182725",
+  Bollwiller: "87182709",
+  Staffelfelden: "87182691",
+  Moosch: "87182592",
+  "Bitschwiller-lès-Thann": "87182576",
+  "Vieux-Thann": "87182550",
+  "Luttenbach-près-Munster": "87182543",
+  Walbach: "87182360",
+  "Herrlisheim-près-Colmar": "87182329",
+  Altkirch: "87182238",
+  Rixheim: "87182071",
+  Graffenwald: "87181131",
+  Hasenrain: "87181024",
+};
+
 const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
 const scheduleContainer = document.querySelector(".schedule-container");
 let apiUrl = "";
@@ -259,7 +428,7 @@ function displayDepartures(departures, stationName) {
     pathElement.setAttribute(
       "d",
       "M0 1.54469C0 1.20918 0.220729 1.0523 0.560312 1.03803C1.08259 1.01698 1.78213 1 2.62905 1C8.53577 1 21.5404 1.80957 30.2372 7.38213C30.5102 7.556 30.5754 7.71832 30.4749 8.0382C30.4273 8.19102 27.7209 16.6609 27.7209 16.6609C27.6081 16.9774 27.4166 16.9991 27.1769 16.9991H0.474737C0.186771 16.9991 0 16.7635 0 16.5027V1.54469ZM16.7274 13.2793C17.2232 13.8593 18.0993 14.1195 19.1935 14.1195C19.7015 14.1195 20.1878 14.0706 20.581 13.9714L22.4351 8.17607H27.897L27.5581 9.25052H23.6699L23.1068 11.0075H26.3702L26.0381 12.0439H22.7754L21.9258 14.7198C21.5998 14.8944 20.2896 15.2747 18.8403 15.2747C16.5984 15.2747 15.0166 14.2057 14.7701 12.6151C14.7667 12.5913 14.7483 12.5839 14.7198 12.5839C14.6926 12.5839 14.675 12.5893 14.6662 12.6151L13.8552 15.1484H12.2157C11.6805 13.1489 10.6822 11.2554 9.67631 9.81626L8.6793 12.9085C8.67183 12.933 8.65824 12.9397 8.6304 12.9397C8.60255 12.9397 8.58421 12.9343 8.57539 12.9085C8.42529 12.4698 8.24327 12.1614 7.6687 11.7342L8.81174 8.17607H10.3405C11.5882 9.72458 12.6083 11.6215 13.1041 13.064L14.6621 8.17607H16.0856L15.5986 9.70352C15.5905 9.73001 15.6109 9.73544 15.6408 9.73544L15.6419 9.73544C15.661 9.73546 15.6916 9.73548 15.7216 9.70352C16.6935 8.65692 18.1931 8.06333 19.9175 8.06333C20.4744 8.06333 21.0422 8.0939 21.5108 8.16589L21.1264 9.29262C20.7474 9.2444 20.3256 9.2186 19.9161 9.2186C17.9717 9.2186 16.5182 10.1626 16.2982 11.6561C16.2058 12.2823 16.3539 12.844 16.7274 13.2793ZM7.52109 9.24576C7.15366 9.16087 6.83242 9.10314 6.38077 9.09227C5.48767 9.0719 4.5022 9.28583 4.31203 9.84954C4.16908 10.2724 4.68018 10.5147 5.48283 10.8952L5.48317 10.8953C5.58421 10.9432 5.68986 10.9933 5.7994 11.0462L5.86795 11.0793C7.10705 11.6771 8.59838 12.3966 7.98157 13.6929C7.45046 14.8081 6.12405 15.3236 4.07568 15.2768C2.98494 15.2516 1.70675 14.8604 1.08667 14.5725L1.58789 13.4885C2.43074 13.913 3.50042 14.1589 4.35821 14.1792C5.34844 14.2016 6.02964 13.9925 6.23747 13.5517C6.50506 12.9832 5.74439 12.5492 4.78201 12.0928C3.5697 11.5183 2.17062 10.8207 2.66369 9.58059C3.08002 8.53467 4.69847 8.04092 6.48876 8.08235C7.04567 8.09525 7.37915 8.1394 7.84573 8.22497L7.52109 9.24576Z"
-    ); // Replace with your path data
+    );
     pathElement.setAttribute("fill", "url(#paint0_linear_16_4013)");
     svgSncf.appendChild(pathElement);
 
@@ -360,12 +529,6 @@ function fetchTrainStops(trainId, destinationCell, departureStation) {
     });
 }
 
-const stationCodes = {
-  Strasbourg: "87212027",
-  Sélestat: "87214056",
-  "Strasbourg-Roethig": "87212191",
-};
-
 const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 const chooseStationBtn = document.getElementById("chooseStationBtn");
 const closeModalBtn = document.getElementById("closeModal");
@@ -382,7 +545,6 @@ function openModal() {
   modal.style.display = "flex";
   document.getElementById("modal-content").innerHTML = "";
   renderNonFavoriteStationButtons();
-  renderCloseButton();
   modal.classList.add("fade-in");
 }
 
@@ -395,20 +557,13 @@ function closeModal() {
   }, 300);
 }
 
-function renderCloseButton() {
-  const closeButton = document.createElement("button");
-  closeButton.innerText = "Fermer";
-  closeButton.addEventListener("click", closeModal);
-  document.getElementById("modal-content").appendChild(closeButton);
-}
-
 function renderStationButton(stationName, isFavorite) {
   const button = document.createElement("button");
   button.className = isFavorite ? "station-btn favorite" : "station-btn";
   button.setAttribute("data-station", stationName);
   button.innerHTML = isFavorite
     ? `<span class="star">&#9733;</span> ${stationName}`
-    : `<span class="star">&#9734;</span> ${stationName}`;
+    : `<span class="star">&#9734;</span> <span class="station-name">${stationName}</span>`;
   button.addEventListener("click", (event) => {
     const star = event.target.closest(".star");
     if (star) {
@@ -417,7 +572,6 @@ function renderStationButton(stationName, isFavorite) {
       closeModal();
     } else {
       closeModal();
-      console.log(stationCodes[stationName]);
       apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
       scheduleContainer.innerHTML = "";
       fetchTrainDepartures(apiUrl, stationName);
@@ -429,7 +583,31 @@ function renderStationButton(stationName, isFavorite) {
 }
 
 function renderNonFavoriteStationButtons() {
-  for (const stationName in stationCodes) {
+  const searchBar = document.createElement("input");
+  searchBar.setAttribute("type", "text");
+  searchBar.setAttribute("id", "search-bar");
+  searchBar.setAttribute("placeholder", "Chercher une gare...");
+
+  document.getElementById("modal-content").appendChild(searchBar);
+
+  searchBar.addEventListener("input", function () {
+    const searchTerm = searchBar.value.toLowerCase();
+    const stationButtons = document.querySelectorAll(".station-btn");
+
+    stationButtons.forEach(function (button) {
+      const stationName = button.getAttribute("data-station").toLowerCase();
+      if (stationName.includes(searchTerm)) {
+        button.style.display = "flex";
+      } else {
+        button.style.display = "none";
+      }
+    });
+  });
+
+  const stationNames = Object.keys(stationCodes);
+  stationNames.sort();
+
+  for (const stationName of stationNames) {
     if (!favorites.includes(stationName)) {
       renderStationButton(stationName, false);
     }
@@ -463,7 +641,6 @@ window.addEventListener("load", () => {
 });
 
 window.addEventListener("click", closeOnOutsideClick);
-window.addEventListener("touchstart", closeOnOutsideClick);
 
 function closeOnOutsideClick(event) {
   const modal = document.querySelector(".modal");
