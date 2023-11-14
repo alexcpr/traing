@@ -306,7 +306,7 @@ function displayDepartures(departures, stationName) {
     viewStopsButton.textContent = "Voir les arrêts en gare";
     viewStopsButton.addEventListener("click", () => {
       const trainId = hiddenInput.value;
-      fetchTrainStops(trainId, trainStops);
+      fetchTrainStops(trainId, trainStops, stationName);
       viewStopsButton.remove();
     });
 
@@ -333,7 +333,7 @@ function displayDepartures(departures, stationName) {
   }
 }
 
-function fetchTrainStops(trainId, destinationCell) {
+function fetchTrainStops(trainId, destinationCell, departureStation) {
   fetch(`https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`, {
     method: "GET",
     headers: { Authorization: apiKey },
@@ -343,7 +343,17 @@ function fetchTrainStops(trainId, destinationCell) {
       const stops = data.vehicle_journeys[0].stop_times.map((stop) =>
         stop.stop_point.name.replace(/\s*-\s*/g, "-")
       );
-      destinationCell.innerHTML = stops.join(" - ");
+      const departureIndex = stops.findIndex(
+        (stop) =>
+          stop.replace(/\s*-\s*/g, "") ===
+          departureStation.replace(/\s*-\s*/g, " ")
+      );
+      if (departureIndex !== -1) {
+        const stopsAfterDeparture = stops.slice(departureIndex + 1);
+        destinationCell.innerHTML = stopsAfterDeparture.join(" - ");
+      } else {
+        destinationCell.innerHTML = "Erreur lors du chargement des arrêts.";
+      }
     })
     .catch((error) => {
       destinationCell.innerHTML = "Erreur lors du chargement des arrêts.";
