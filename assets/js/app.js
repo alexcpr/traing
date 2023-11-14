@@ -52,11 +52,11 @@ function padZero(num) {
   return num.toString().padStart(2, "0");
 }
 
-function fetchTrainDepartures(apiUrl) {
+function fetchTrainDepartures(apiUrl, stationName) {
   fetch(apiUrl, { method: "GET", headers: { Authorization: apiKey } })
     .then(handleResponse)
     .then((data) => {
-      displayDepartures(data.departures);
+      displayDepartures(data.departures, stationName);
       const moreDeparturesButton = document.getElementById("more-departures");
       moreDeparturesButton.style.display =
         data.departures.length > 0 ? "block" : "none";
@@ -98,7 +98,7 @@ function updateTrainCode(departure, trainCodeElement) {
   }
 }
 
-function displayDepartures(departures) {
+function displayDepartures(departures, stationName) {
   departures.forEach((departure) => {
     const displayInfo = departure.display_informations;
     const stopDateTime = departure.stop_date_time;
@@ -144,7 +144,7 @@ function displayDepartures(departures) {
 
     const departureStation = document.createElement("span");
     departureStation.classList.add("departure-station");
-    departureStation.textContent = "Strasbourg";
+    departureStation.textContent = stationName;
 
     const arrivalStation = document.createElement("span");
     arrivalStation.classList.add("departure-station");
@@ -410,7 +410,7 @@ function renderStationButton(stationName, isFavorite) {
       console.log(stationCodes[stationName]);
       apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
       scheduleContainer.innerHTML = "";
-      fetchTrainDepartures(apiUrl);
+      fetchTrainDepartures(apiUrl, stationName);
     }
   });
   !isFavorite
@@ -468,8 +468,12 @@ moreDeparturesButton.addEventListener("click", () => {
   const lastTrainDepartureTime = document.querySelector(
     '.more-departures input[type="hidden"]'
   ).value;
+  const stationName = document.querySelector(
+    ".schedule-container .schedule-item:last-child .departure-station"
+  ).textContent;
+
   const apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
-  fetchTrainDepartures(apiUrlWithDatetime);
+  fetchTrainDepartures(apiUrlWithDatetime, stationName);
 });
 
 window.onscroll = function () {
