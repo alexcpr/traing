@@ -562,7 +562,7 @@ function renderStationButton(stationName, isFavorite) {
   button.className = isFavorite ? "station-btn favorite" : "station-btn";
   button.setAttribute("data-station", stationName);
   button.innerHTML = isFavorite
-    ? `<span class="star">&#9733;</span> ${stationName}`
+    ? `<span class="star">&#9733;</span> <span class="station-name">${stationName}</span>`
     : `<span class="star">&#9734;</span> <span class="station-name">${stationName}</span>`;
   button.addEventListener("click", (event) => {
     const star = event.target.closest(".star");

@@ -578,10 +578,7 @@ h1 {
   overflow-y: scroll
 }
 
-.modal-content .station-btn {
-  margin: 10px;
-  width: 85%;
-  font-size: 14px;
+.station-btn {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;
@@ -604,6 +601,12 @@ h1 {
   -moz-box-direction: reverse;
   -ms-flex-flow: row-reverse wrap;
   flex-flow: row-reverse wrap;
+}
+
+.modal-content .station-btn {
+  margin: 10px;
+  width: 85%;
+  font-size: 14px;
   height: 50px
 }
 
