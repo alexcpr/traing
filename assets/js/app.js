@@ -582,6 +582,10 @@ function renderStationButton(stationName, isFavorite) {
     : document.getElementById("station-selector").appendChild(button);
 }
 
+function removeAccents(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 function renderNonFavoriteStationButtons() {
   const searchBar = document.createElement("input");
   searchBar.setAttribute("type", "text");
@@ -591,11 +595,15 @@ function renderNonFavoriteStationButtons() {
   document.getElementById("modal-content").appendChild(searchBar);
 
   searchBar.addEventListener("input", function () {
-    const searchTerm = searchBar.value.toLowerCase();
-    const stationButtons = document.querySelectorAll(".modal-content .station-btn");
+    const searchTerm = removeAccents(searchBar.value.toLowerCase());
+    const stationButtons = document.querySelectorAll(
+      ".modal-content .station-btn"
+    );
 
     stationButtons.forEach(function (button) {
-      const stationName = button.getAttribute("data-station").toLowerCase();
+      const stationName = removeAccents(
+        button.getAttribute("data-station").toLowerCase()
+      );
       if (stationName.includes(searchTerm)) {
         button.style.display = "flex";
       } else {
