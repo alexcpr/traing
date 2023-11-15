@@ -592,7 +592,7 @@ function renderNonFavoriteStationButtons() {
 
   searchBar.addEventListener("input", function () {
     const searchTerm = searchBar.value.toLowerCase();
-    const stationButtons = document.querySelectorAll(".station-btn");
+    const stationButtons = document.querySelectorAll(".modal-content .station-btn");
 
     stationButtons.forEach(function (button) {
       const stationName = button.getAttribute("data-station").toLowerCase();
