@@ -380,14 +380,18 @@ h1 {
   gap: 5px
 }
 
-.departure-info {
-  font-weight: 700;
-  font-size: 1.2em;
+.departure-info,
+.journey-direction {
   -webkit-box-orient: vertical;
   -webkit-flex-flow: column wrap;
   -moz-box-orient: vertical;
   -ms-flex-flow: column wrap;
-  flex-flow: column wrap;
+  flex-flow: column wrap
+}
+
+.departure-info {
+  font-weight: 700;
+  font-size: 1.2em;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -moz-box-pack: center;
@@ -398,6 +402,19 @@ h1 {
   -moz-box-flex: 1;
   -ms-flex: 1;
   flex: 1
+}
+
+.journey-direction {
+  -webkit-flex-basis: 100%;
+  -ms-flex-preferred-size: 100%;
+  flex-basis: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal
 }
 
 .train-code {
@@ -428,18 +445,22 @@ h1 {
 }
 
 .departure-arrow {
-  color: #8a9497;
   -webkit-transform: rotate(-90deg);
   -moz-transform: rotate(-90deg);
   -ms-transform: rotate(-90deg);
   -o-transform: rotate(-90deg);
   transform: rotate(-90deg);
-  width: 1.00012rem;
   height: 1.00012rem;
-  -o-object-fit: contain;
-  object-fit: contain;
   padding-left: .49962rem;
   padding-right: .49962rem
+}
+
+.departure-arrow,
+.journey-arrow {
+  color: #8a9497;
+  width: 1.00012rem;
+  -o-object-fit: contain;
+  object-fit: contain
 }
 
 .time-block {
@@ -509,12 +530,48 @@ h1 {
   color: #ff0
 }
 
-#chooseStationBtn {
-  margin: 0 auto;
-  display: block
+.choice-buttons {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -moz-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-flow: row wrap;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-flow: row wrap;
+  flex-flow: row wrap
+}
+
+.modal {
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  width: 100%
 }
 
 .modal,
+.modal-content {
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center
+}
+
 .modal-content {
   -webkit-box-pack: center;
   -webkit-justify-content: center;
@@ -535,10 +592,6 @@ h1 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, .5);
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -moz-box-pack: center;
-  -ms-flex-pack: center;
   -webkit-box-align: center;
   -webkit-align-items: center;
   -moz-box-align: center;
@@ -558,12 +611,16 @@ h1 {
   margin-bottom: 20px
 }
 
-.modal-content {
+.modal-content,
+.station-btn {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;
   display: -ms-flexbox;
-  display: flex;
+  display: flex
+}
+
+.modal-content {
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
@@ -580,11 +637,6 @@ h1 {
 }
 
 .station-btn {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: flex;
   -webkit-box-align: center;
   -webkit-align-items: center;
   -moz-box-align: center;
@@ -601,7 +653,7 @@ h1 {
   -moz-box-orient: horizontal;
   -moz-box-direction: reverse;
   -ms-flex-flow: row-reverse wrap;
-  flex-flow: row-reverse wrap;
+  flex-flow: row-reverse wrap
 }
 
 .modal-content .station-btn {
