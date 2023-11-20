@@ -134,7 +134,12 @@
     <link rel="apple-touch-startup-image"
         media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
         href="/splash_screens/10.5__iPad_Air_portrait.png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=c98ee604fdddb6b786a8b9c82c133b1c16b178f3e33e5c1742a1b697cb2f8815">
+    <link rel="stylesheet" href="/assets/css/lib/select2.min.css">
+    <link rel="stylesheet"
+        href="/assets/css/app.css?v=c98ee604fdddb6b786a8b9c82c133b1c16b178f3e33e5c1742a1b697cb2f8815">
+    <script defer src="/assets/js/lib/jquery-3.6.4.min.js"></script>
+    <script defer src="/assets/js/lib/select2.min.js"></script>
+    <script defer src="/assets/js/lib/fr.min.js"></script>
     <script defer src="/assets/js/app.js?v=c98ee604fdddb6b786a8b9c82c133b1c16b178f3e33e5c1742a1b697cb2f8815"></script>
 </head>
 
@@ -153,18 +158,25 @@
         </div>
         <div class="choice-buttons">
             <button id="chooseStationBtn">Choisir une gare</button>
-            <button id="StrasbSelestBtn">Strasbourg ➡️ Séléstat</button>
-            <button id="SelestStrasBtn">Séléstat ➡️ Strasbourg</button>
+        </div>
+        <div class="journey-search">
+            <label for="journeyDepartureStation">Gare de départ</label>
+            <select id="journeyDepartureStation"></select>
+            <label for="journeyArrivalStation">Gare d'arrivée</label>
+            <select id="journeyArrivalStation"></select>
+            <label for="journeyDate">Date</label>
+            <input type="datetime-local" name="journeyDate" id="journeyDate">
+            <button id="searchJourneyBtn">Rechercher maintenant</button>
         </div>
         <div class="station-selector" id="station-selector"></div>
-        <div class="schedule-container">
-        </div>
+        <div class="schedule-container"></div>
         <div class="more-departures">
             <input type="hidden" id="lastTrainDepartureInput">
             <button id="more-departures">⬇️ Plus tard</button>
         </div>
     </div>
     <button id="back-to-top-btn">⬆️</button>
+    <div id="toast"></div>
 </body>
 
 </html>

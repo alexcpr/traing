@@ -167,6 +167,17 @@ const stationCodes = {
   Hasenrain: "87181024",
 };
 
+function showToast(message, className) {
+  const toastElement = document.getElementById("toast");
+  toastElement.innerHTML = message;
+  toastElement.classList.add(className);
+  toastElement.classList.add("show");
+  setTimeout(function () {
+    toastElement.classList.remove(className);
+    toastElement.classList.remove("show");
+  }, 3000);
+}
+
 const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
 const scheduleContainer = document.querySelector(".schedule-container");
 let apiUrl = "";
@@ -910,11 +921,17 @@ function fetchTrainStops(trainId, destinationCell, departureStation) {
         const stopsAfterDeparture = stops.slice(departureIndex + 1);
         destinationCell.innerHTML = stopsAfterDeparture.join(" - ");
       } else {
-        destinationCell.innerHTML = "Erreur lors du chargement des arrêts.";
+        showToast(
+          "<strong>Erreur:</strong> Impossible de charger les arrêts de ce train.",
+          "danger"
+        );
       }
     })
     .catch((error) => {
-      destinationCell.innerHTML = "Erreur lors du chargement des arrêts.";
+      showToast(
+        "<strong>Erreur:</strong> Impossible de charger les arrêts de ce train.",
+        "danger"
+      );
     });
 }
 
@@ -1033,12 +1050,6 @@ function renderFavoriteStationButtons() {
   });
 }
 
-window.addEventListener("load", () => {
-  renderFavoriteStationButtons();
-  const savedTheme = localStorage.getItem("theme") || "light";
-  htmlElement.setAttribute("data-theme", savedTheme);
-});
-
 window.addEventListener("click", closeOnOutsideClick);
 
 function closeOnOutsideClick(event) {
@@ -1099,21 +1110,6 @@ document
     });
   });
 
-const StrasbSelestBtn = document.getElementById("StrasbSelestBtn");
-const SelestStrasBtn = document.getElementById("SelestStrasBtn");
-
-StrasbSelestBtn.addEventListener("click", () => {
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A87212027&to=stop_area%3ASNCF%3A87214056&count=10`;
-  scheduleContainer.innerHTML = "";
-  fetchJourneys(apiUrl, "Strasbourg", "Séléstat");
-});
-
-SelestStrasBtn.addEventListener("click", () => {
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A87214056&to=stop_area%3ASNCF%3A87212027&count=10`;
-  scheduleContainer.innerHTML = "";
-  fetchJourneys(apiUrl, "Séléstat", "Strasbourg");
-});
-
 const htmlElement = document.documentElement;
 const themeToggle = document.getElementById("themeToggle");
 
@@ -1126,3 +1122,100 @@ function toggleTheme() {
 }
 
 themeToggle.addEventListener("click", toggleTheme);
+
+document.addEventListener("DOMContentLoaded", function () {
+  renderFavoriteStationButtons();
+  const savedTheme = localStorage.getItem("theme") || "light";
+  htmlElement.setAttribute("data-theme", savedTheme);
+
+  const journeyDepartureStationSelect = document.getElementById(
+    "journeyDepartureStation"
+  );
+  const journeyArrivalStationSelect = document.getElementById(
+    "journeyArrivalStation"
+  );
+
+  for (const stationName in stationCodes) {
+    if (stationCodes.hasOwnProperty(stationName)) {
+      const option = document.createElement("option");
+      option.value = stationCodes[stationName];
+      option.text = stationName;
+      journeyDepartureStationSelect.appendChild(option);
+      journeyArrivalStationSelect.appendChild(option.cloneNode(true));
+    }
+  }
+  $("#journeyDepartureStation").select2({
+    placeholder: "Choississez une gare de départ",
+    sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
+  });
+  $("#journeyArrivalStation").select2({
+    placeholder: "Choississez une gare d'arrivée",
+    sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
+  });
+  $("#journeyDepartureStation").val(null).trigger("change");
+  $("#journeyArrivalStation").val(null).trigger("change");
+
+  const currentDate = new Date();
+  const timezoneOffset = currentDate.getTimezoneOffset();
+  currentDate.setMinutes(currentDate.getMinutes() - timezoneOffset);
+  const formattedDate = currentDate.toISOString().slice(0, 16);
+  document.getElementById("journeyDate").value = formattedDate;
+  document.getElementById("journeyDate").min = formattedDate;
+});
+
+const searchJourneyBtn = document.getElementById("searchJourneyBtn");
+searchJourneyBtn.addEventListener("click", () => {
+  const selectedJourneyDepartureStation = $("#journeyDepartureStation").find(
+    "option:selected"
+  );
+  const journeyArrivalStationSelect = $("#journeyArrivalStation").find(
+    "option:selected"
+  );
+
+  const departureStationVal = selectedJourneyDepartureStation.val();
+  const departureStationText = selectedJourneyDepartureStation.text();
+  const arrivalStationVal = journeyArrivalStationSelect.val();
+  const arrivalStationText = journeyArrivalStationSelect.text();
+
+  if (!departureStationVal || !arrivalStationVal) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
+      "danger"
+    );
+    return;
+  }
+
+  if (
+    !stationCodes.hasOwnProperty(departureStationText) ||
+    !stationCodes.hasOwnProperty(arrivalStationText)
+  ) {
+    showToast("<strong>Erreur:</strong> Veuillez sélectionner une gare valide", "danger");
+    return;
+  }
+
+  if (departureStationText === arrivalStationText) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner deux gares différentes",
+      "danger"
+    );
+    return;
+  }
+
+  const journeyDate = document.getElementById("journeyDate").value;
+
+  const currentDateTime = new Date();
+  currentDateTime.setSeconds(0, 0);
+  const journeyDateTime = new Date(journeyDate);
+  journeyDateTime.setSeconds(0, 0);
+
+  if (journeyDateTime < currentDateTime) {
+    showToast("<strong>Erreur:</strong> Veuillez sélectionner une date ultérieure", "danger");
+    return;
+  }
+
+  const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
+
+  scheduleContainer.innerHTML = "";
+  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
+  fetchJourneys(`${apiUrl}&datetime=${formattedJourneyDate}`, departureStationText, arrivalStationText);
+});
