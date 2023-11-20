@@ -172,11 +172,16 @@ const scheduleContainer = document.querySelector(".schedule-container");
 let apiUrl = "";
 
 function formatCountdown(countdown) {
-  const hours = Math.floor(countdown / 3600000);
+  const days = Math.floor(countdown / 86400000);
+  const hours = Math.floor((countdown % 86400000) / 3600000);
   const minutes = Math.floor((countdown % 3600000) / 60000);
   const seconds = Math.floor((countdown % 60000) / 1000);
 
   let result = "";
+
+  if (days > 0) {
+    result += `${days} jour${days > 1 ? "s" : ""} et `;
+  }
 
   if (hours > 0) {
     result += `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${
@@ -758,7 +763,11 @@ function displayJourneys(journeys, disruptions, from, to) {
     trainCode.textContent = trainStatus;
 
     setInterval(() => {
-      updateJourneyTrainCode(trainCode, secondsToMinutes(journey.duration), trainStatus);
+      updateJourneyTrainCode(
+        trainCode,
+        secondsToMinutes(journey.duration),
+        trainStatus
+      );
     }, 2000);
 
     scheduleHeader.appendChild(trainCode);
@@ -771,18 +780,17 @@ function displayJourneys(journeys, disruptions, from, to) {
     timeLeft.textContent = "Part dans : ...";
 
     const countdownInterval = setInterval(() => {
-      const now = new Date();
-      const departureTime = new Date();
-      const formattedTime = departureTimeJourney["formattedTime"].split(":");
-      departureTime.setHours(parseInt(formattedTime[0], 10));
-      departureTime.setMinutes(parseInt(formattedTime[1], 10));
-      departureTime.setSeconds(0);
-
-      const timeUntilDeparture = departureTime - now;
+      const now = new Date().getTime();
+      const departureTimeFormatted = departureDateTime.replace(
+        /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/,
+        "$1-$2-$3T$4:$5:$6"
+      );
+      const departureTimeMillis = Date.parse(departureTimeFormatted);
+      const timeUntilDeparture = departureTimeMillis - now;
 
       if (timeUntilDeparture >= 0) {
         timeLeft.textContent =
-          "Part dans : " + formatCountdown(timeUntilDeparture);
+          "Part dans : " + formatCountdown(timeUntilDeparture - 1000);
 
         if (timeUntilDeparture <= 0) {
           clearInterval(countdownInterval);
@@ -876,8 +884,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     trainStops.classList.add("train-stops");
     scheduleItem.appendChild(trainStops);
   });
-  const lastTrainDeparture =
-    journeys[journeys.length - 1].departure_date_time;
+  const lastTrainDeparture = journeys[journeys.length - 1].departure_date_time;
   const hiddenInput = document.getElementById("lastTrainDepartureInput");
   if (hiddenInput) {
     hiddenInput.value = lastTrainDeparture;
@@ -1070,7 +1077,6 @@ moreDeparturesButton.addEventListener("click", () => {
     apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
     fetchTrainDepartures(apiUrlWithDatetime, stationName);
   }
-
 });
 
 window.onscroll = function () {
