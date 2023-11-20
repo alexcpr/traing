@@ -167,6 +167,165 @@ const stationCodes = {
   Hasenrain: "87181024",
 };
 
+const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
+let apiUrl = "";
+
+const scheduleContainer = document.querySelector(".schedule-container");
+const moreDeparturesButton = document.getElementById("more-departures");
+const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+const chooseStationBtn = document.getElementById("chooseStationBtn");
+const closeModalBtn = document.getElementById("closeModal");
+const htmlElement = document.documentElement;
+const themeToggle = document.getElementById("themeToggle");
+const searchJourneyBtn = document.getElementById("searchJourneyBtn");
+const backToTopBtn = document.getElementById("back-to-top-btn");
+
+function initialize() {
+  renderFavoriteStationButtons();
+  const savedTheme = localStorage.getItem("theme") || "light";
+  htmlElement.setAttribute("data-theme", savedTheme);
+
+  const journeyDepartureStationSelect = document.getElementById(
+    "journeyDepartureStation"
+  );
+  const journeyArrivalStationSelect = document.getElementById(
+    "journeyArrivalStation"
+  );
+
+  for (const stationName in stationCodes) {
+    if (stationCodes.hasOwnProperty(stationName)) {
+      const option = document.createElement("option");
+      option.value = stationCodes[stationName];
+      option.text = stationName;
+      journeyDepartureStationSelect.appendChild(option);
+      journeyArrivalStationSelect.appendChild(option.cloneNode(true));
+    }
+  }
+  initializeSelect2(
+    "#journeyDepartureStation",
+    "Choississez une gare de départ"
+  );
+  initializeSelect2("#journeyArrivalStation", "Choississez une gare d'arrivée");
+
+  const currentDate = new Date();
+  const timezoneOffset = currentDate.getTimezoneOffset();
+  currentDate.setMinutes(currentDate.getMinutes() - timezoneOffset);
+  const formattedDate = currentDate.toISOString().slice(0, 16);
+  document.getElementById("journeyDate").value = formattedDate;
+  document.getElementById("journeyDate").min = formattedDate;
+}
+
+function handleSearchJourney() {
+  const selectedJourneyDepartureStation = $("#journeyDepartureStation").find(
+    "option:selected"
+  );
+  const journeyArrivalStationSelect = $("#journeyArrivalStation").find(
+    "option:selected"
+  );
+
+  const departureStationVal = selectedJourneyDepartureStation.val();
+  const departureStationText = selectedJourneyDepartureStation.text();
+  const arrivalStationVal = journeyArrivalStationSelect.val();
+  const arrivalStationText = journeyArrivalStationSelect.text();
+
+  if (!departureStationVal || !arrivalStationVal) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
+      "danger"
+    );
+    return;
+  }
+
+  if (
+    !stationCodes.hasOwnProperty(departureStationText) ||
+    !stationCodes.hasOwnProperty(arrivalStationText)
+  ) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une gare valide",
+      "danger"
+    );
+    return;
+  }
+
+  if (departureStationText === arrivalStationText) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner deux gares différentes",
+      "danger"
+    );
+    return;
+  }
+
+  const journeyDate = document.getElementById("journeyDate").value;
+
+  const currentDateTime = new Date();
+  currentDateTime.setSeconds(0, 0);
+  const journeyDateTime = new Date(journeyDate);
+  journeyDateTime.setSeconds(0, 0);
+
+  if (journeyDateTime < currentDateTime) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une date ultérieure",
+      "danger"
+    );
+    return;
+  }
+
+  const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
+
+  scheduleContainer.innerHTML = "";
+  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
+  fetchJourneys(
+    `${apiUrl}&datetime=${formattedJourneyDate}`,
+    departureStationText,
+    arrivalStationText
+  );
+}
+
+function handleMoreDepartures() {
+  let lastTrainDepartureTime = document.querySelector(
+    '.more-departures input[type="hidden"]'
+  ).value;
+
+  lastTrainDepartureTime = lastTrainDepartureTime.slice(0, -1) + "1";
+
+  let apiUrlWithDatetime;
+
+  if (apiUrl.includes("journeys")) {
+    const departureStationName = document.querySelector(
+      ".schedule-container .schedule-item:last-child .departure-station"
+    ).textContent;
+
+    const allDepartureStations = document.querySelectorAll(
+      ".schedule-container .schedule-item:last-child .departure-station"
+    );
+    const arrivalStationName = allDepartureStations[1].textContent;
+    apiUrlWithDatetime = `${apiUrl}&datetime=${lastTrainDepartureTime}`;
+    fetchJourneys(apiUrlWithDatetime, departureStationName, arrivalStationName);
+  } else {
+    const stationName = document.querySelector(
+      ".schedule-container .schedule-item:last-child .departure-station"
+    ).textContent;
+    apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
+    fetchTrainDepartures(apiUrlWithDatetime, stationName);
+  }
+}
+
+function initializeSelect2(elementId, placeholderText) {
+  $(elementId).select2({
+    placeholder: placeholderText,
+    sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
+  });
+  $(elementId).val(null).trigger("change");
+}
+
+function toggleTheme() {
+  const currentTheme = htmlElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  themeToggle.textContent = newTheme === "light" ? "🌙" : "☀️";
+  htmlElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+}
+
 function showToast(message, className) {
   const toastElement = document.getElementById("toast");
   toastElement.innerHTML = message;
@@ -177,10 +336,6 @@ function showToast(message, className) {
     toastElement.classList.remove("show");
   }, 3000);
 }
-
-const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
-const scheduleContainer = document.querySelector(".schedule-container");
-let apiUrl = "";
 
 function formatCountdown(countdown) {
   const days = Math.floor(countdown / 86400000);
@@ -342,7 +497,6 @@ function fetchTrainDepartures(apiUrl, stationName) {
     .then(handleResponse)
     .then((data) => {
       displayDepartures(data.departures, stationName);
-      const moreDeparturesButton = document.getElementById("more-departures");
       moreDeparturesButton.style.display =
         data.departures.length > 0 ? "block" : "none";
     })
@@ -356,7 +510,6 @@ function fetchJourneys(apiUrl, fromName, toName) {
       const disruptions = data.disruptions;
       const journeys = data.journeys;
       displayJourneys(journeys, disruptions, fromName, toName);
-      const moreDeparturesButton = document.getElementById("more-departures");
       moreDeparturesButton.style.display =
         data.journeys.length > 0 ? "block" : "none";
     })
@@ -365,12 +518,20 @@ function fetchJourneys(apiUrl, fromName, toName) {
 
 function handleResponse(response) {
   if (!response.ok) {
+    showToast(
+      "<strong>Erreur:</strong> Une erreur inattendue s'est produite.",
+      "danger"
+    );
     throw new Error(`HTTP error! Status: ${response.status}`);
   }
   return response.json();
 }
 
 function handleError(error) {
+  showToast(
+    "<strong>Erreur:</strong> Une erreur inattendue s'est produite.",
+    "danger"
+  );
   console.error("Error:", error);
 }
 
@@ -935,18 +1096,6 @@ function fetchTrainStops(trainId, destinationCell, departureStation) {
     });
 }
 
-const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-const chooseStationBtn = document.getElementById("chooseStationBtn");
-const closeModalBtn = document.getElementById("closeModal");
-
-chooseStationBtn.addEventListener("click", () => {
-  openModal();
-});
-
-closeModalBtn.addEventListener("click", () => {
-  closeModal();
-});
-
 function openModal() {
   modal.style.display = "flex";
   document.getElementById("modal-content").innerHTML = "";
@@ -1050,172 +1199,37 @@ function renderFavoriteStationButtons() {
   });
 }
 
-window.addEventListener("click", closeOnOutsideClick);
-
 function closeOnOutsideClick(event) {
   const modal = document.querySelector(".modal");
   if (event.target === modal) {
     closeModal();
   }
 }
+function handleScroll() {
+  const scrollThreshold = 350;
+  const scrollPosition =
+    document.body.scrollTop || document.documentElement.scrollTop;
 
-const moreDeparturesButton = document.getElementById("more-departures");
-
-moreDeparturesButton.addEventListener("click", () => {
-  let lastTrainDepartureTime = document.querySelector(
-    '.more-departures input[type="hidden"]'
-  ).value;
-
-  lastTrainDepartureTime = lastTrainDepartureTime.slice(0, -1) + "1";
-
-  let apiUrlWithDatetime;
-
-  if (apiUrl.includes("journeys")) {
-    const departureStationName = document.querySelector(
-      ".schedule-container .schedule-item:last-child .departure-station"
-    ).textContent;
-
-    const allDepartureStations = document.querySelectorAll(
-      ".schedule-container .schedule-item:last-child .departure-station"
-    );
-    const arrivalStationName = allDepartureStations[1].textContent;
-    apiUrlWithDatetime = `${apiUrl}&datetime=${lastTrainDepartureTime}`;
-    fetchJourneys(apiUrlWithDatetime, departureStationName, arrivalStationName);
+  if (scrollPosition > scrollThreshold) {
+    backToTopBtn.style.display = "block";
   } else {
-    const stationName = document.querySelector(
-      ".schedule-container .schedule-item:last-child .departure-station"
-    ).textContent;
-    apiUrlWithDatetime = `${apiUrl}?from_datetime=${lastTrainDepartureTime}`;
-    fetchTrainDepartures(apiUrlWithDatetime, stationName);
+    backToTopBtn.style.display = "none";
   }
-});
-
-window.onscroll = function () {
-  if (
-    document.body.scrollTop > 350 ||
-    document.documentElement.scrollTop > 350
-  ) {
-    document.getElementById("back-to-top-btn").style.display = "block";
-  } else {
-    document.getElementById("back-to-top-btn").style.display = "none";
-  }
-};
-
-document
-  .getElementById("back-to-top-btn")
-  .addEventListener("click", function () {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  });
-
-const htmlElement = document.documentElement;
-const themeToggle = document.getElementById("themeToggle");
-
-function toggleTheme() {
-  const currentTheme = htmlElement.getAttribute("data-theme");
-  const newTheme = currentTheme === "light" ? "dark" : "light";
-  themeToggle.textContent = newTheme === "light" ? "🌙" : "☀️";
-  htmlElement.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
 }
 
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
+
+window.onscroll = handleScroll;
+window.addEventListener("click", closeOnOutsideClick);
+backToTopBtn.addEventListener("click", scrollToTop);
+chooseStationBtn.addEventListener("click", openModal);
+closeModalBtn.addEventListener("click", closeModal);
+moreDeparturesButton.addEventListener("click", handleMoreDepartures);
 themeToggle.addEventListener("click", toggleTheme);
-
-document.addEventListener("DOMContentLoaded", function () {
-  renderFavoriteStationButtons();
-  const savedTheme = localStorage.getItem("theme") || "light";
-  htmlElement.setAttribute("data-theme", savedTheme);
-
-  const journeyDepartureStationSelect = document.getElementById(
-    "journeyDepartureStation"
-  );
-  const journeyArrivalStationSelect = document.getElementById(
-    "journeyArrivalStation"
-  );
-
-  for (const stationName in stationCodes) {
-    if (stationCodes.hasOwnProperty(stationName)) {
-      const option = document.createElement("option");
-      option.value = stationCodes[stationName];
-      option.text = stationName;
-      journeyDepartureStationSelect.appendChild(option);
-      journeyArrivalStationSelect.appendChild(option.cloneNode(true));
-    }
-  }
-  $("#journeyDepartureStation").select2({
-    placeholder: "Choississez une gare de départ",
-    sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
-  });
-  $("#journeyArrivalStation").select2({
-    placeholder: "Choississez une gare d'arrivée",
-    sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
-  });
-  $("#journeyDepartureStation").val(null).trigger("change");
-  $("#journeyArrivalStation").val(null).trigger("change");
-
-  const currentDate = new Date();
-  const timezoneOffset = currentDate.getTimezoneOffset();
-  currentDate.setMinutes(currentDate.getMinutes() - timezoneOffset);
-  const formattedDate = currentDate.toISOString().slice(0, 16);
-  document.getElementById("journeyDate").value = formattedDate;
-  document.getElementById("journeyDate").min = formattedDate;
-});
-
-const searchJourneyBtn = document.getElementById("searchJourneyBtn");
-searchJourneyBtn.addEventListener("click", () => {
-  const selectedJourneyDepartureStation = $("#journeyDepartureStation").find(
-    "option:selected"
-  );
-  const journeyArrivalStationSelect = $("#journeyArrivalStation").find(
-    "option:selected"
-  );
-
-  const departureStationVal = selectedJourneyDepartureStation.val();
-  const departureStationText = selectedJourneyDepartureStation.text();
-  const arrivalStationVal = journeyArrivalStationSelect.val();
-  const arrivalStationText = journeyArrivalStationSelect.text();
-
-  if (!departureStationVal || !arrivalStationVal) {
-    showToast(
-      "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
-      "danger"
-    );
-    return;
-  }
-
-  if (
-    !stationCodes.hasOwnProperty(departureStationText) ||
-    !stationCodes.hasOwnProperty(arrivalStationText)
-  ) {
-    showToast("<strong>Erreur:</strong> Veuillez sélectionner une gare valide", "danger");
-    return;
-  }
-
-  if (departureStationText === arrivalStationText) {
-    showToast(
-      "<strong>Erreur:</strong> Veuillez sélectionner deux gares différentes",
-      "danger"
-    );
-    return;
-  }
-
-  const journeyDate = document.getElementById("journeyDate").value;
-
-  const currentDateTime = new Date();
-  currentDateTime.setSeconds(0, 0);
-  const journeyDateTime = new Date(journeyDate);
-  journeyDateTime.setSeconds(0, 0);
-
-  if (journeyDateTime < currentDateTime) {
-    showToast("<strong>Erreur:</strong> Veuillez sélectionner une date ultérieure", "danger");
-    return;
-  }
-
-  const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
-
-  scheduleContainer.innerHTML = "";
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
-  fetchJourneys(`${apiUrl}&datetime=${formattedJourneyDate}`, departureStationText, arrivalStationText);
-});
+searchJourneyBtn.addEventListener("click", handleSearchJourney);
+document.addEventListener("DOMContentLoaded", initialize);
