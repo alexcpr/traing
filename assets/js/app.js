@@ -1028,6 +1028,8 @@ function renderFavoriteStationButtons() {
 
 window.addEventListener("load", () => {
   renderFavoriteStationButtons();
+  const savedTheme = localStorage.getItem("theme") || "light";
+  htmlElement.setAttribute("data-theme", savedTheme);
 });
 
 window.addEventListener("click", closeOnOutsideClick);
@@ -1105,3 +1107,16 @@ SelestStrasBtn.addEventListener("click", () => {
   scheduleContainer.innerHTML = "";
   fetchJourneys(apiUrl, "Séléstat", "Strasbourg");
 });
+
+const htmlElement = document.documentElement;
+const themeToggle = document.getElementById("themeToggle");
+
+function toggleTheme() {
+  const currentTheme = htmlElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  themeToggle.textContent = newTheme === "light" ? "🌙" : "☀️";
+  htmlElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+}
+
+themeToggle.addEventListener("click", toggleTheme);
