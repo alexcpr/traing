@@ -262,7 +262,8 @@ h1 {
   -o-animation: scrollText 20s linear infinite;
   animation: scrollText 20s linear infinite;
   font-size: .875rem;
-  white-space: nowrap
+  white-space: nowrap;
+  color: var(--primary)
 }
 
 .schedule-item button {
