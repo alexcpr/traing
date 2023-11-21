@@ -178,6 +178,7 @@ const closeModalBtn = document.getElementById("closeModal");
 const htmlElement = document.documentElement;
 const themeToggle = document.getElementById("themeToggle");
 const searchJourneyBtn = document.getElementById("searchJourneyBtn");
+const favoriteJourneyBtn = document.getElementById("favoriteJourneyBtn");
 const backToTopBtn = document.getElementById("back-to-top-btn");
 
 function initialize() {
@@ -215,7 +216,7 @@ function initialize() {
   document.getElementById("journeyDate").min = formattedDate;
 }
 
-function handleSearchJourney() {
+function handleFavoriteJourney() {
   const selectedJourneyDepartureStation = $("#journeyDepartureStation").find(
     "option:selected"
   );
@@ -229,6 +230,50 @@ function handleSearchJourney() {
   const arrivalStationText = journeyArrivalStationSelect.text();
 
   if (!departureStationVal || !arrivalStationVal) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
+      "danger"
+    );
+    return;
+  }
+
+  if (
+    !stationCodes.hasOwnProperty(departureStationText) ||
+    !stationCodes.hasOwnProperty(arrivalStationText)
+  ) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner une gare valide",
+      "danger"
+    );
+    return;
+  }
+
+  if (departureStationText === arrivalStationText) {
+    showToast(
+      "<strong>Erreur:</strong> Veuillez sélectionner deux gares différentes",
+      "danger"
+    );
+    return;
+  }
+
+  toggleFavorite(departureStationText, arrivalStationText);
+  updateStationButtons();
+}
+
+function handleSearchJourney() {
+  const selectedJourneyDepartureStation = $("#journeyDepartureStation").find(
+    "option:selected"
+  );
+  const journeyArrivalStationSelect = $("#journeyArrivalStation").find(
+    "option:selected"
+  );
+
+  const departureStationVal = selectedJourneyDepartureStation.val();
+  const departureStationText = selectedJourneyDepartureStation.text();
+  const arrivalStationVal = journeyArrivalStationSelect.val();
+  const arrivalStationText = journeyArrivalStationSelect.text();
+
+  if (!departureStationText || !arrivalStationText) {
     showToast(
       "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
       "danger"
@@ -1122,14 +1167,79 @@ function renderStationButton(stationName, isFavorite) {
   button.addEventListener("click", (event) => {
     const star = event.target.closest(".star");
     if (star) {
-      toggleFavorite(stationName);
-      updateStationButtons();
-      closeModal();
+      if (stationName.includes("➡️")) {
+        const stationNames = stationName.split("➡️");
+        const stationName1 = stationNames[0].trim();
+        const stationName2 = stationNames[1].trim();
+        toggleFavorite(stationName1, stationName2);
+        updateStationButtons();
+      } else {
+        toggleFavorite(stationName);
+        updateStationButtons();
+        closeModal();
+      }
     } else {
       closeModal();
-      apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
-      scheduleContainer.innerHTML = "";
-      fetchTrainDepartures(apiUrl, stationName);
+      if (stationName.includes("➡️")) {
+        const stationNames = stationName.split("➡️");
+        const departureStationText = stationNames[0].trim();
+        const arrivalStationText = stationNames[1].trim();
+        if (!departureStationText || !arrivalStationText) {
+          showToast(
+            "<strong>Erreur:</strong> Veuillez sélectionner une gare de départ et une gare d'arrivée",
+            "danger"
+          );
+          return;
+        }
+
+        if (
+          !stationCodes.hasOwnProperty(departureStationText) ||
+          !stationCodes.hasOwnProperty(arrivalStationText)
+        ) {
+          showToast(
+            "<strong>Erreur:</strong> Veuillez sélectionner une gare valide",
+            "danger"
+          );
+          return;
+        }
+
+        if (departureStationText === arrivalStationText) {
+          showToast(
+            "<strong>Erreur:</strong> Veuillez sélectionner deux gares différentes",
+            "danger"
+          );
+          return;
+        }
+
+        const journeyDate = document.getElementById("journeyDate").value;
+
+        const currentDateTime = new Date();
+        currentDateTime.setSeconds(0, 0);
+        const journeyDateTime = new Date(journeyDate);
+        journeyDateTime.setSeconds(0, 0);
+
+        if (journeyDateTime < currentDateTime) {
+          showToast(
+            "<strong>Erreur:</strong> Veuillez sélectionner une date ultérieure",
+            "danger"
+          );
+          return;
+        }
+
+        const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
+
+        scheduleContainer.innerHTML = "";
+        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`;
+        fetchJourneys(
+          `${apiUrl}&datetime=${formattedJourneyDate}`,
+          departureStationText,
+          arrivalStationText
+        );
+      } else {
+        apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
+        scheduleContainer.innerHTML = "";
+        fetchTrainDepartures(apiUrl, stationName);
+      }
     }
   });
   !isFavorite
@@ -1183,19 +1293,40 @@ function updateStationButtons() {
   renderFavoriteStationButtons();
 }
 
-function toggleFavorite(stationName) {
-  const index = favorites.indexOf(stationName);
-  if (index !== -1) {
-    favorites.splice(index, 1);
+function toggleFavorite(stationName, stationName2 = null) {
+  if (stationName && stationName2) {
+    const existingIndex = favorites.findIndex(
+      (fav) => fav[stationName] === stationName2
+    );
+    if (existingIndex !== -1) {
+      favorites.splice(existingIndex, 1);
+    } else {
+      let favoriteObject = {};
+      favoriteObject[stationName] = stationName2;
+      favorites.push(favoriteObject);
+    }
   } else {
-    favorites.push(stationName);
+    const index = favorites.findIndex((fav) => fav === stationName);
+    if (index !== -1) {
+      favorites.splice(index, 1);
+    } else {
+      favorites.push(stationName);
+    }
   }
+
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
 function renderFavoriteStationButtons() {
-  favorites.forEach((stationName) => {
-    renderStationButton(stationName, true);
+  favorites.forEach((favorite) => {
+    if (typeof favorite === "object") {
+      const stationName = Object.keys(favorite)[0];
+      const stationName2 = favorite[stationName];
+      const buttonLabel = `${stationName} ➡️ ${stationName2}`;
+      renderStationButton(buttonLabel, true);
+    } else {
+      renderStationButton(favorite, true);
+    }
   });
 }
 
@@ -1232,4 +1363,5 @@ closeModalBtn.addEventListener("click", closeModal);
 moreDeparturesButton.addEventListener("click", handleMoreDepartures);
 themeToggle.addEventListener("click", toggleTheme);
 searchJourneyBtn.addEventListener("click", handleSearchJourney);
+favoriteJourneyBtn.addEventListener("click", handleFavoriteJourney);
 document.addEventListener("DOMContentLoaded", initialize);

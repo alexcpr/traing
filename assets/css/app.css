@@ -600,7 +600,11 @@ h1 {
 
 .station-btn .star {
   color: gray;
-  font-size: 1.2em
+  font-size: 1.2em;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%)
 }
 
 .station-btn.favorite .star {
@@ -715,7 +719,10 @@ h1 {
   -moz-box-orient: horizontal;
   -moz-box-direction: reverse;
   -ms-flex-flow: row-reverse wrap;
-  flex-flow: row-reverse wrap
+  flex-flow: row-reverse wrap;
+  position: relative;
+  width: unset !important;
+  padding-right: 30px !important
 }
 
 .modal-content .station-btn {
@@ -730,7 +737,8 @@ h1 {
   -webkit-flex: 1;
   -moz-box-flex: 1;
   -ms-flex: 1;
-  flex: 1
+  flex: 1;
+  white-space: nowrap
 }
 
 @media (min-width:1000px) {
