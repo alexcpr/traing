@@ -740,6 +740,10 @@ h1 {
   display: flex
 }
 
+.modal-content .station-btn .star {
+  font-size: 1.8em
+}
+
 .modal-content {
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
