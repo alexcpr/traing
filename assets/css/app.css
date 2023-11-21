@@ -688,6 +688,7 @@ h1 {
   background-color: var(--background);
   padding: 20px;
   margin: 20px;
+  height: 60%;
   border: 1px solid var(--border);
   max-width: 50%;
   text-align: center;
