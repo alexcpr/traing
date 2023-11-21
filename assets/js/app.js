@@ -415,6 +415,31 @@ function formatCountdown(countdown) {
   return result;
 }
 
+function formatDuration(seconds) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  let result = "";
+
+  if (days > 0) {
+    result += `${days} jour${days > 1 ? "s" : ""} et `;
+  }
+
+  if (hours > 0) {
+    result += `${hours}h:${
+      minutes < 10 ? "0" : ""
+    }${minutes}min`;
+  } else if (minutes > 0) {
+    result += `${minutes}min`;
+  } else {
+    result += `${remainingSeconds}secondes`;
+  }
+
+  return result;
+}
+
 function calculateDelayInMinutes(realTime, baseTime) {
   const realTimeParts = realTime.split(":");
   const baseTimeParts = baseTime.split(":");
@@ -620,7 +645,7 @@ function updateJourneyTrainCode(
     trainCodeElement.textContent === "À l'heure" ||
     trainCodeElement.textContent.includes("Retardé")
   ) {
-    trainCodeElement.textContent = `Durée: ${journeyDuration}min`;
+    trainCodeElement.textContent = `Durée: ${journeyDuration}`;
   } else {
     trainCodeElement.textContent = trainStatus;
   }
@@ -990,7 +1015,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     setInterval(() => {
       updateJourneyTrainCode(
         trainCode,
-        secondsToMinutes(journey.duration),
+        formatDuration(journey.duration),
         trainStatus
       );
     }, 2000);
