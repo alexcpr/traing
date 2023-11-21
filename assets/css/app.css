@@ -146,6 +146,30 @@
   }
 }
 
+@-moz-keyframes fadein {
+  0% {
+    bottom: 0;
+    opacity: 0
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1
+  }
+}
+
+@-o-keyframes fadein {
+  0% {
+    bottom: 0;
+    opacity: 0
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1
+  }
+}
+
 @keyframes fadein {
   0% {
     bottom: 0;
@@ -159,6 +183,30 @@
 }
 
 @-webkit-keyframes fadeout {
+  0% {
+    bottom: 30px;
+    opacity: 1
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0
+  }
+}
+
+@-moz-keyframes fadeout {
+  0% {
+    bottom: 30px;
+    opacity: 1
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0
+  }
+}
+
+@-o-keyframes fadeout {
   0% {
     bottom: 30px;
     opacity: 1
@@ -281,7 +329,10 @@ h1 {
   -webkit-transition: -webkit-transform .2s;
   -o-transition: -o-transform .2s;
   -moz-transition: transform .2s, -moz-transform .2s;
+  transition: -webkit-transform .2s;
+  -moz-transition: transform .2s, -moz-transform .2s;
   transition: transform .2s;
+  transition: transform .2s, -webkit-transform .2s, -moz-transform .2s, -o-transform .2s;
   transition: transform .2s, -webkit-transform .2s;
   width: 20%
 }
@@ -604,6 +655,10 @@ h1 {
   position: absolute;
   right: 10px;
   top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
   transform: translateY(-50%)
 }
 
@@ -720,9 +775,12 @@ h1 {
   -moz-box-direction: reverse;
   -ms-flex-flow: row-reverse wrap;
   flex-flow: row-reverse wrap;
-  position: relative;
-  width: unset !important;
-  padding-right: 30px !important
+  position: relative
+}
+
+.station-selector .station-btn {
+  width: unset;
+  padding-right: 30px
 }
 
 .modal-content .station-btn {
@@ -817,8 +875,20 @@ h1 {
 
 #themeToggle,
 .journey-search {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -moz-box-align: center;
+  -ms-flex-align: center;
   align-items: center
 }
 
@@ -855,6 +925,12 @@ h1 {
 }
 
 .journey-search {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-flow: column wrap;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-flow: column wrap;
   flex-flow: column wrap;
   gap: 10px;
   margin: 20px 0
@@ -870,16 +946,24 @@ h1 {
 #toast {
   visibility: hidden;
   min-width: 250px;
+  -webkit-box-shadow: rgba(0, 0, 0, .24)0 3px 8px;
+  -moz-box-shadow: rgba(0, 0, 0, .24)0 3px 8px;
   box-shadow: rgba(0, 0, 0, .24)0 3px 8px;
   text-align: center;
   padding: 16px;
   position: fixed;
   z-index: 1;
   left: 50%;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
   transform: translateX(-50%);
   bottom: 30px;
   font-size: 16px;
   margin-bottom: 15px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
   border-radius: 6px
 }
 
@@ -914,5 +998,22 @@ h1 {
 #toast.show {
   visibility: visible;
   -webkit-animation: fadein .5s, fadeout .5s 2.5s;
+  -moz-animation: fadein .5s, fadeout .5s 2.5s;
+  -o-animation: fadein .5s, fadeout .5s 2.5s;
   animation: fadein .5s, fadeout .5s 2.5s
+}
+
+.invertStations {
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg)
+}
+
+#journeyDate {
+  width: 200px
 }

@@ -180,6 +180,8 @@ const themeToggle = document.getElementById("themeToggle");
 const searchJourneyBtn = document.getElementById("searchJourneyBtn");
 const favoriteJourneyBtn = document.getElementById("favoriteJourneyBtn");
 const backToTopBtn = document.getElementById("back-to-top-btn");
+const invertStationsBtn = document.querySelector(".invertStations");
+let toastTimeout;
 
 function initialize() {
   renderFavoriteStationButtons();
@@ -357,6 +359,7 @@ function handleMoreDepartures() {
 
 function initializeSelect2(elementId, placeholderText) {
   $(elementId).select2({
+    allowClear: true,
     placeholder: placeholderText,
     sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
   });
@@ -376,7 +379,12 @@ function showToast(message, className) {
   toastElement.innerHTML = message;
   toastElement.classList.add(className);
   toastElement.classList.add("show");
-  setTimeout(function () {
+
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+  }
+
+  toastTimeout = setTimeout(function () {
     toastElement.classList.remove(className);
     toastElement.classList.remove("show");
   }, 3000);
@@ -1299,17 +1307,45 @@ function toggleFavorite(stationName, stationName2 = null) {
       (fav) => fav[stationName] === stationName2
     );
     if (existingIndex !== -1) {
+      showToast(
+        "<strong>Succès :</strong> Le trajet <strong>" +
+          stationName +
+          " ➡️ " +
+          stationName2 +
+          "</strong> a bien été supprimé des favoris.",
+        "success"
+      );
       favorites.splice(existingIndex, 1);
     } else {
       let favoriteObject = {};
       favoriteObject[stationName] = stationName2;
+      showToast(
+        "<strong>Succès :</strong> Le trajet <strong>" +
+          stationName +
+          " ➡️ " +
+          stationName2 +
+          "</strong> a bien été ajouté en favoris.",
+        "success"
+      );
       favorites.push(favoriteObject);
     }
   } else {
     const index = favorites.findIndex((fav) => fav === stationName);
     if (index !== -1) {
+      showToast(
+        "<strong>Succès :</strong> La gare <strong>" +
+          stationName +
+          "</strong> a bien été supprimée des favoris.",
+        "success"
+      );
       favorites.splice(index, 1);
     } else {
+      showToast(
+        "<strong>Succès :</strong> La gare <strong>" +
+          stationName +
+          "</strong> a bien été ajoutée en favoris.",
+        "success"
+      );
       favorites.push(stationName);
     }
   }
@@ -1355,6 +1391,14 @@ function scrollToTop() {
   });
 }
 
+function handleInvertStations() {
+  const departureValue = $("#journeyDepartureStation").val();
+  const arrivalValue = $("#journeyArrivalStation").val();
+
+  $("#journeyDepartureStation").val(arrivalValue).trigger("change");
+  $("#journeyArrivalStation").val(departureValue).trigger("change");
+}
+
 window.onscroll = handleScroll;
 window.addEventListener("click", closeOnOutsideClick);
 backToTopBtn.addEventListener("click", scrollToTop);
@@ -1364,4 +1408,5 @@ moreDeparturesButton.addEventListener("click", handleMoreDepartures);
 themeToggle.addEventListener("click", toggleTheme);
 searchJourneyBtn.addEventListener("click", handleSearchJourney);
 favoriteJourneyBtn.addEventListener("click", handleFavoriteJourney);
+invertStationsBtn.addEventListener("click", handleInvertStations);
 document.addEventListener("DOMContentLoaded", initialize);
