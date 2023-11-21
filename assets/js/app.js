@@ -1049,6 +1049,16 @@ function displayJourneys(journeys, disruptions, from, to) {
     descElement.textContent = "SNCF";
     svgSncf.appendChild(descElement);
 
+    var rectElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
+    );
+    rectElement.setAttribute("width", "100%");
+    rectElement.setAttribute("height", "100%");
+    rectElement.setAttribute("fill", "var(--background)");
+
+    svgSncf.appendChild(rectElement);
+
     var pathElement = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "path"
