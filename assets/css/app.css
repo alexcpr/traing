@@ -737,8 +737,7 @@ h1 {
   -webkit-flex: 1;
   -moz-box-flex: 1;
   -ms-flex: 1;
-  flex: 1;
-  white-space: nowrap
+  flex: 1
 }
 
 @media (min-width:1000px) {

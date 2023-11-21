@@ -303,9 +303,9 @@ function handleSearchJourney() {
   const journeyDate = document.getElementById("journeyDate").value;
 
   const currentDateTime = new Date();
-  currentDateTime.setSeconds(0, 0);
+  currentDateTime.setHours(0, 0, 0, 0);
   const journeyDateTime = new Date(journeyDate);
-  journeyDateTime.setSeconds(0, 0);
+  journeyDateTime.setHours(0, 0, 0, 0);
 
   if (journeyDateTime < currentDateTime) {
     showToast(
@@ -1214,9 +1214,9 @@ function renderStationButton(stationName, isFavorite) {
         const journeyDate = document.getElementById("journeyDate").value;
 
         const currentDateTime = new Date();
-        currentDateTime.setSeconds(0, 0);
+        currentDateTime.setHours(0, 0, 0, 0);
         const journeyDateTime = new Date(journeyDate);
-        journeyDateTime.setSeconds(0, 0);
+        journeyDateTime.setHours(0, 0, 0, 0);
 
         if (journeyDateTime < currentDateTime) {
           showToast(
