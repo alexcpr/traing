@@ -210,9 +210,9 @@ function initialize() {
   );
   initializeSelect2("#journeyArrivalStation", "Choississez une gare d'arrivée");
 
-   $(document).on("select2:open", () => {
-     document.querySelector(".select2-search__field").focus();
-   });
+  $(document).on("select2:open", () => {
+    document.querySelector(".select2-search__field").focus();
+  });
 
   const currentDate = new Date();
   const timezoneOffset = currentDate.getTimezoneOffset();
@@ -1032,13 +1032,32 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const countdownInterval = setInterval(() => {
       const now = new Date().getTime();
-      const departureTimeFormatted = departureTimeJourney[
-        "formattedTime"
-      ].replace(
-        /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/,
-        "$1-$2-$3T$4:$5:$6"
+
+      const year = parseInt(departureDateTime.substring(0, 4));
+      const month = parseInt(departureDateTime.substring(4, 6)) - 1;
+      const day = parseInt(departureDateTime.substring(6, 8));
+      const hours = parseInt(departureDateTime.substring(9, 11));
+      const minutes = parseInt(departureDateTime.substring(11, 13));
+
+      const correctDepartureDateTime = new Date(
+        year,
+        month,
+        day,
+        hours,
+        minutes
       );
-      const departureTimeMillis = Date.parse(departureTimeFormatted);
+
+      const formattedHours = parseInt(
+        departureTimeJourney["formattedTime"].substring(0, 2)
+      );
+      const formattedMinutes = parseInt(
+        departureTimeJourney["formattedTime"].substring(3, 5)
+      );
+
+      correctDepartureDateTime.setHours(formattedHours);
+      correctDepartureDateTime.setMinutes(formattedMinutes);
+
+      const departureTimeMillis = Date.parse(correctDepartureDateTime);
       const timeUntilDeparture = departureTimeMillis - now;
 
       if (timeUntilDeparture >= 0) {
