@@ -210,6 +210,10 @@ function initialize() {
   );
   initializeSelect2("#journeyArrivalStation", "Choississez une gare d'arrivée");
 
+   $(document).on("select2:open", () => {
+     document.querySelector(".select2-search__field").focus();
+   });
+
   const currentDate = new Date();
   const timezoneOffset = currentDate.getTimezoneOffset();
   currentDate.setMinutes(currentDate.getMinutes() - timezoneOffset);
@@ -492,7 +496,6 @@ function parseAndFormatDateTimeJourney(
           if (impactedStops && impactedStops.length > 0) {
             for (const stop of impactedStops) {
               if (stop.base_departure_time === dateTimeString.slice(9)) {
-
                 correctedDateTime = stop.amended_departure_time;
 
                 const originalTimeInSeconds = convertToSeconds(
@@ -1002,7 +1005,11 @@ function displayJourneys(journeys, disruptions, from, to) {
     trainCode.classList.add("train-code");
     const trainStatus =
       departureTimeJourney && departureTimeJourney.delay > 0
-        ? "Retardé de " + departureTimeJourney.delay + " minutes<br><span class=\"delay-cause\">(" + departureTimeJourney.delayCause + ")</span>"
+        ? "Retardé de " +
+          departureTimeJourney.delay +
+          ' minutes<br><span class="delay-cause">(' +
+          departureTimeJourney.delayCause +
+          ")</span>"
         : "À l'heure";
     trainCode.innerHTML = trainStatus;
 
