@@ -1322,6 +1322,7 @@ function renderNonFavoriteStationButtons() {
       renderStationButton(stationName, false);
     }
   }
+  searchBar.focus();
 }
 
 function updateStationButtons() {
