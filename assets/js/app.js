@@ -428,9 +428,7 @@ function formatDuration(seconds) {
   }
 
   if (hours > 0) {
-    result += `${hours}h:${
-      minutes < 10 ? "0" : ""
-    }${minutes}min`;
+    result += `${hours}h:${minutes < 10 ? "0" : ""}${minutes}min`;
   } else if (minutes > 0) {
     result += `${minutes}min`;
   } else {
@@ -466,6 +464,14 @@ function parseAndFormatDateTime(dateTimeString) {
   return `${padZero(date.getHours())}:${padZero(date.getMinutes())}`;
 }
 
+function convertToSeconds(timeHHMMSS) {
+  const hours = parseInt(timeHHMMSS.slice(0, 2));
+  const minutes = parseInt(timeHHMMSS.slice(2, 4));
+  const seconds = parseInt(timeHHMMSS.slice(4, 6));
+
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 function parseAndFormatDateTimeJourney(
   dateTimeString,
   disruptions,
@@ -475,6 +481,7 @@ function parseAndFormatDateTimeJourney(
   let correctedDateTime = dateTimeString;
   let hour, minute;
   let delay = 0;
+  let delayCause = null;
 
   if (departureTime) {
     for (const disruption of disruptions) {
@@ -485,33 +492,20 @@ function parseAndFormatDateTimeJourney(
           if (impactedStops && impactedStops.length > 0) {
             for (const stop of impactedStops) {
               if (stop.base_departure_time === dateTimeString.slice(9)) {
-                correctedDateTime = stop.amended_arrival_time;
 
-                const baseDepartureTime = stop.base_departure_time;
-                const amendedArrivalTime = stop.amended_arrival_time;
+                correctedDateTime = stop.amended_departure_time;
 
-                const baseDepartureHour = parseInt(
-                  baseDepartureTime.slice(0, 2),
-                  10
+                const originalTimeInSeconds = convertToSeconds(
+                  dateTimeString.slice(9)
                 );
-                const baseDepartureMinute = parseInt(
-                  baseDepartureTime.slice(2, 4),
-                  10
-                );
+                const amendedTimeInSeconds =
+                  convertToSeconds(correctedDateTime);
 
-                const amendedArrivalHour = parseInt(
-                  amendedArrivalTime.slice(0, 2),
-                  10
-                );
-                const amendedArrivalMinute = parseInt(
-                  amendedArrivalTime.slice(2, 4),
-                  10
-                );
+                const delayInSeconds =
+                  amendedTimeInSeconds - originalTimeInSeconds;
+                delay = delayInSeconds / 60;
 
-                delay =
-                  amendedArrivalHour * 60 +
-                  amendedArrivalMinute -
-                  (baseDepartureHour * 60 + baseDepartureMinute);
+                delayCause = stop.cause;
 
                 break;
               }
@@ -558,7 +552,7 @@ function parseAndFormatDateTimeJourney(
     minuteWithoutDelay
   )}`;
 
-  return { formattedTime, formattedTimeWithoutDelay, delay };
+  return { formattedTime, formattedTimeWithoutDelay, delay, delayCause };
 }
 
 function padZero(number) {
@@ -647,7 +641,7 @@ function updateJourneyTrainCode(
   ) {
     trainCodeElement.textContent = `Durée: ${journeyDuration}`;
   } else {
-    trainCodeElement.textContent = trainStatus;
+    trainCodeElement.innerHTML = trainStatus;
   }
 }
 
@@ -1008,9 +1002,9 @@ function displayJourneys(journeys, disruptions, from, to) {
     trainCode.classList.add("train-code");
     const trainStatus =
       departureTimeJourney && departureTimeJourney.delay > 0
-        ? "Retardé de " + departureTimeJourney.delay + " minutes"
+        ? "Retardé de " + departureTimeJourney.delay + " minutes<br><span class=\"delay-cause\">(" + departureTimeJourney.delayCause + ")</span>"
         : "À l'heure";
-    trainCode.textContent = trainStatus;
+    trainCode.innerHTML = trainStatus;
 
     setInterval(() => {
       updateJourneyTrainCode(
