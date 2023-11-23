@@ -884,7 +884,7 @@ function displayDepartures(departures, stationName) {
 
     scheduleContainer.appendChild(scheduleItem);
 
-    departureInfo.innerHTML += `<a href="#${trainHeadSign}" id="trainLink_${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
+    departureInfo.innerHTML += `<a title="Plus d'infos" href="#${trainHeadSign}" id="trainLink_${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
 
     let stopsHTML;
     let trainStopsModal;
@@ -975,7 +975,6 @@ function displayJourneys(journeys, disruptions, from, to) {
     const trainHeadSign = journey.sections[1].display_informations.headsign;
     const trainNetwork = journey.sections[1].display_informations.network;
     const trainDuration = formatDuration(journey.duration);
-    let isDelayed = false;
 
     const scheduleItem = document.createElement("div");
     scheduleItem.classList.add("schedule-item");
@@ -1017,10 +1016,11 @@ function displayJourneys(journeys, disruptions, from, to) {
       true
     );
 
+    let isDelayed = departureTimeJourney["delay"] > 0 ? true : false;
+
     realDepartureTimeEl.textContent = departureTimeJourney["formattedTime"];
 
-    if (departureTimeJourney["delay"] > 0) {
-      isDelayed = true;
+    if (isDelayed) {
       const delayedSpan = document.createElement("span");
       delayedSpan.classList.add("delayed");
       delayedSpan.textContent =
@@ -1041,7 +1041,7 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     realArrivalTimeEl.textContent = arrivalTimeJourney["formattedTime"];
 
-    if (departureTimeJourney["delay"] > 0) {
+    if (isDelayed) {
       const delayedSpan = document.createElement("span");
       delayedSpan.classList.add("delayed");
       delayedSpan.textContent = arrivalTimeJourney["formattedTimeWithoutDelay"];
@@ -1263,7 +1263,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     timeBlock.appendChild(timeLeft);
     timeBlock.appendChild(svgSncf);
     scheduleItem.appendChild(scheduleHeader);
-    departureInfo.innerHTML += `<a href="#${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
+    departureInfo.innerHTML += `<a title="Plus d'infos" href="#${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
 
     scheduleItem.appendChild(timeBlock);
 
@@ -1279,18 +1279,25 @@ function displayJourneys(journeys, disruptions, from, to) {
             )
           : stop.departure_date_time;
 
+        const delayIndicator = isDelayed
+          ? `<span class="delayed">${parseAndFormatDateTime(
+              stop.departure_date_time
+            )}</span>`
+          : "";
+
         return `
-        <div class="step step-journey">
-            <p class="step-title">
-                <strong>${stop.stop_point.name}</strong>
-                <span class="step-time">${parseAndFormatDateTime(
-                  departureDateTime
-                )}</span>
-            </p>
-        </div>
-    `;
+      <div class="step step-journey">
+          <p class="step-title">
+              <strong>${stop.stop_point.name}</strong>
+              <span class="step-time">${delayIndicator}${parseAndFormatDateTime(
+          departureDateTime
+        )}</span>
+          </p>
+      </div>
+  `;
       })
       .join("");
+
     let trainStatusModal;
     let trainName = `<h1>${trainNetwork} N°${trainHeadSign}</h1>`;
     if (isCancelled) {
@@ -1304,6 +1311,13 @@ function displayJourneys(journeys, disruptions, from, to) {
     }
     const trainStopsModal = document.createElement("a");
     trainStopsModal.href = "#close";
+    const modalDepartureTimeJourney = isDelayed
+      ? `<span class="delayed">${departureTimeJourney["formattedTimeWithoutDelay"]}</span>${departureTimeJourney["formattedTime"]}`
+      : departureTimeJourney["formattedTime"];
+    const modalArrivalTimeJourney = isDelayed
+      ? `<span class="delayed">${arrivalTimeJourney["formattedTimeWithoutDelay"]}</span>${arrivalTimeJourney["formattedTime"]}`
+      : arrivalTimeJourney["formattedTime"];
+
     trainStopsModal.innerHTML = `
     <div id="${trainHeadSign}" class="modal-window">
       <div>
@@ -1316,14 +1330,14 @@ function displayJourneys(journeys, disruptions, from, to) {
               <div class="step step-journey">
                 <p class="step-title">
                   <strong>${from}</strong>
-                  <span class="step-time">${departureTimeJourney["formattedTime"]}</span>
+                  <span class="step-time">${modalDepartureTimeJourney}</span>
                 </p>
               </div>
               ${stopsHTML}
               <div class="step step-journey">
                 <p class="step-title">
                  <strong>${to}</strong>
-                 <span class="step-time">${arrivalTimeJourney["formattedTime"]}</span>
+                 <span class="step-time">${modalArrivalTimeJourney}</span>
                 </p>
               </div>
             </div>
