@@ -1060,7 +1060,7 @@ h1 {
   -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   padding: 2em;
-  background: #fff;
+  background: var(--background);
   max-height: 60%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -1087,11 +1087,12 @@ h1 {
 .modal-window>div>p {
   margin: 5px 0;
   font-style: italic;
-  font-size: 14px
+  font-size: 14px;
+  color: var(--primary)
 }
 
 .modal-close {
-  color: #aaa;
+  color: var(--secondary);
   line-height: 50px;
   font-size: 120%;
   right: -15px;
@@ -1211,7 +1212,8 @@ h1 {
 }
 
 .step-title {
-  position: relative
+  position: relative;
+  color: var(--primary)
 }
 
 .step-time {
