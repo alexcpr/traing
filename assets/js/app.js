@@ -381,16 +381,14 @@ function toggleTheme() {
 function showToast(message, className) {
   const toastElement = document.getElementById("toast");
   toastElement.innerHTML = message;
-  toastElement.classList.add(className);
-  toastElement.classList.add("show");
+  toastElement.className = className + " show";
 
   if (toastTimeout) {
     clearTimeout(toastTimeout);
   }
 
-  toastTimeout = setTimeout(function () {
-    toastElement.classList.remove(className);
-    toastElement.classList.remove("show");
+  toastTimeout = setTimeout(() => {
+    toastElement.className = "";
   }, 3000);
 }
 
