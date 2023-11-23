@@ -593,10 +593,6 @@ function fetchJourneys(apiUrl, fromName, toName) {
 
 function handleResponse(response) {
   if (!response.ok) {
-    showToast(
-      "<strong>Erreur:</strong> Une erreur inattendue s'est produite.",
-      "danger"
-    );
     throw new Error(`HTTP error! Status: ${response.status}`);
   }
   return response.json();
@@ -608,6 +604,31 @@ function handleError(error) {
     "danger"
   );
   console.error("Error:", error);
+}
+
+function addDelayToDateTime(dateTime, delayInMinutes) {
+  const year = parseInt(dateTime.slice(0, 4), 10);
+  const month = parseInt(dateTime.slice(4, 6), 10) - 1;
+  const day = parseInt(dateTime.slice(6, 8), 10);
+  const hours = parseInt(dateTime.slice(9, 11), 10);
+  const minutes = parseInt(dateTime.slice(11, 13), 10);
+  const seconds = parseInt(dateTime.slice(13, 15), 10);
+
+  const originalDateTime = new Date(year, month, day, hours, minutes, seconds);
+  const delayedDateTime = new Date(
+    originalDateTime.getTime() + delayInMinutes * 60000
+  );
+
+  const formatResult = (date) => {
+    const pad = (num) => num.toString().padStart(2, "0");
+    return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(
+      date.getDate()
+    )}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(
+      date.getSeconds()
+    )}`;
+  };
+
+  return formatResult(delayedDateTime);
 }
 
 function updateTrainCode(departure, trainCodeElement) {
@@ -633,16 +654,12 @@ function updateTrainCode(departure, trainCodeElement) {
   }
 }
 
-function updateJourneyTrainCode(
-  trainCodeElement,
-  journeyDuration,
-  trainStatus
-) {
+function updateJourneyTrainCode(trainCodeElement, trainName, trainStatus) {
   if (
     trainCodeElement.textContent === "À l'heure" ||
     trainCodeElement.textContent.includes("Retardé")
   ) {
-    trainCodeElement.textContent = `Durée: ${journeyDuration}`;
+    trainCodeElement.textContent = trainName;
   } else {
     trainCodeElement.innerHTML = trainStatus;
   }
@@ -653,6 +670,12 @@ function displayDepartures(departures, stationName) {
     const displayInfo = departure.display_informations;
     const stopDateTime = departure.stop_date_time;
     const trainId = departure.links[1].id;
+    const trainHeadSign = departure.display_informations.headsign;
+    const trainName =
+      departure.display_informations.network +
+      " N°" +
+      departure.display_informations.headsign;
+    let isDelayed = false;
     const baseDepartureTime = parseAndFormatDateTime(
       stopDateTime.base_departure_date_time
     );
@@ -682,6 +705,7 @@ function displayDepartures(departures, stationName) {
     realDepartureTimeEl.textContent = realDepartureTime;
 
     if (realDepartureTime > baseDepartureTime) {
+      isDelayed = true;
       const delayedSpan = document.createElement("span");
       delayedSpan.classList.add("delayed");
       delayedSpan.textContent = baseDepartureTime;
@@ -737,10 +761,7 @@ function displayDepartures(departures, stationName) {
 
     const trainCode = document.createElement("span");
     trainCode.classList.add("train-code");
-    trainCode.textContent =
-      departure.display_informations.network +
-      " " +
-      departure.display_informations.headsign;
+    trainCode.textContent = trainName;
 
     scheduleHeader.appendChild(trainCode);
 
@@ -852,14 +873,6 @@ function displayDepartures(departures, stationName) {
 
     timeBlock.appendChild(timeLeft);
 
-    const viewStopsButton = document.createElement("button");
-    viewStopsButton.textContent = "Voir les arrêts en gare";
-    viewStopsButton.addEventListener("click", () => {
-      const trainId = hiddenInput.value;
-      fetchTrainStops(trainId, trainStops, stationName);
-      viewStopsButton.remove();
-    });
-
     const hiddenInput = document.createElement("input");
     hiddenInput.type = "hidden";
     hiddenInput.value = trainId;
@@ -867,13 +880,84 @@ function displayDepartures(departures, stationName) {
     timeBlock.appendChild(svgSncf);
 
     scheduleItem.appendChild(scheduleHeader);
-    scheduleItem.appendChild(viewStopsButton);
     scheduleItem.appendChild(timeBlock);
 
     scheduleContainer.appendChild(scheduleItem);
-    const trainStops = document.createElement("div");
-    trainStops.classList.add("train-stops");
-    scheduleItem.appendChild(trainStops);
+
+    departureInfo.innerHTML += `<a href="#${trainHeadSign}" id="trainLink_${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
+
+    let stopsHTML;
+    let trainStopsModal;
+    let trainStatus;
+    document
+      .getElementById(`trainLink_${trainHeadSign}`)
+      .addEventListener("click", () => {
+        if (!document.getElementById(trainHeadSign)) {
+          fetchTrainStops(trainId)
+            .then((trainStops) => {
+              const departureIndex = trainStops.findIndex(
+                (stop) => stop.name === stationName
+              );
+              const arrivalIndex = trainStops.findIndex(
+                (stop) => stop.name === displayInfo.direction.split(" (")[0]
+              );
+
+              const filteredStops = trainStops.slice(
+                departureIndex + 1,
+                arrivalIndex
+              );
+              stopsHTML = filteredStops
+                .map((stop) => {
+                  return `
+            <div class="step">
+              <p class="step-title">
+                <strong>${stop.name}</strong>
+              </p>
+            </div>
+          `;
+                })
+                .join("");
+
+              trainStopsModal = document.createElement("a");
+              trainStopsModal.href = "#close";
+              trainStatus = isDelayed
+                ? `Retardé de ${delayMinutes} minutes`
+                : "À l'heure ✅";
+              trainStopsModal.innerHTML = `
+          <div id="${trainHeadSign}" class="modal-window">
+            <div>
+              <a href="#close" title="Fermer" class="modal-close">&times;</a>
+              <h1>${trainName}</h1>
+              <p>Statut: ${trainStatus}</p>
+              <div class="path-container">
+                <div class="path">
+                  <div class="step">
+                    <p class="step-title">
+                      <strong>${stationName}</strong>
+                    </p>
+                  </div>
+                  ${stopsHTML}
+                  <div class="step">
+                    <p class="step-title">
+                      <strong>${displayInfo.direction.split(" (")[0]}</strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+
+              scheduleItem.appendChild(trainStopsModal);
+              window.location = `#${trainHeadSign}`;
+            })
+            .catch((error) => {
+              showToast(
+                "<strong>Erreur</strong>: Impossible de récupérer les arrêts du train.",
+                "danger"
+              );
+            });
+        }
+      });
   });
   const lastTrainDeparture =
     departures[departures.length - 1].stop_date_time.departure_date_time;
@@ -884,12 +968,18 @@ function displayDepartures(departures, stationName) {
 }
 
 function displayJourneys(journeys, disruptions, from, to) {
-  journeys.forEach((journey) => {
+  journeys.forEach((journey, index) => {
     const departureDateTime = journey.departure_date_time;
     const arrivalDateTime = journey.arrival_date_time;
+    const isCancelled = journey.status == "NO_SERVICE";
+    const trainHeadSign = journey.sections[1].display_informations.headsign;
+    const trainNetwork = journey.sections[1].display_informations.network;
+    const trainDuration = formatDuration(journey.duration);
+    let isDelayed = false;
 
     const scheduleItem = document.createElement("div");
     scheduleItem.classList.add("schedule-item");
+    scheduleItem.classList.add(`schedule-item-${index}`);
 
     const scheduleHeader = document.createElement("div");
     scheduleHeader.classList.add("schedule-header");
@@ -916,6 +1006,10 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const realDepartureTimeEl = document.createElement("span");
     const realArrivalTimeEl = document.createElement("span");
+    if (isCancelled) {
+      realDepartureTimeEl.classList.add("delayed");
+      realArrivalTimeEl.classList.add("delayed");
+    }
 
     const departureTimeJourney = parseAndFormatDateTimeJourney(
       departureDateTime,
@@ -926,6 +1020,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     realDepartureTimeEl.textContent = departureTimeJourney["formattedTime"];
 
     if (departureTimeJourney["delay"] > 0) {
+      isDelayed = true;
       const delayedSpan = document.createElement("span");
       delayedSpan.classList.add("delayed");
       delayedSpan.textContent =
@@ -1003,24 +1098,27 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const trainCode = document.createElement("span");
     trainCode.classList.add("train-code");
-    const trainStatus =
-      departureTimeJourney && departureTimeJourney.delay > 0
-        ? "Retardé de " +
-          departureTimeJourney.delay +
-          ' minutes<br><span class="delay-cause">(' +
-          departureTimeJourney.delayCause +
-          ")</span>"
-        : "À l'heure";
-    trainCode.innerHTML = trainStatus;
+    if (isCancelled) {
+      trainCode.textContent = "Annulé";
+    } else {
+      const trainStatus =
+        departureTimeJourney && departureTimeJourney.delay > 0
+          ? "Retardé de " +
+            departureTimeJourney.delay +
+            ' minutes<br><span class="delay-cause">(' +
+            departureTimeJourney.delayCause +
+            ")</span>"
+          : "À l'heure";
+      trainCode.innerHTML = trainStatus;
 
-    setInterval(() => {
-      updateJourneyTrainCode(
-        trainCode,
-        formatDuration(journey.duration),
-        trainStatus
-      );
-    }, 2000);
-
+      setInterval(() => {
+        updateJourneyTrainCode(
+          trainCode,
+          `${trainNetwork} N°${trainHeadSign}`,
+          trainStatus
+        );
+      }, 2000);
+    }
     scheduleHeader.appendChild(trainCode);
 
     const timeBlock = document.createElement("div");
@@ -1028,50 +1126,56 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const timeLeft = document.createElement("div");
     timeLeft.classList.add("time-left");
-    timeLeft.textContent = "Part dans : ...";
+    if (isCancelled) {
+      timeLeft.textContent = "Le train est annulé.";
+    } else {
+      timeLeft.textContent = trainDuration + ", Part dans : ...";
 
-    const countdownInterval = setInterval(() => {
-      const now = new Date().getTime();
+      const countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
 
-      const year = parseInt(departureDateTime.substring(0, 4));
-      const month = parseInt(departureDateTime.substring(4, 6)) - 1;
-      const day = parseInt(departureDateTime.substring(6, 8));
-      const hours = parseInt(departureDateTime.substring(9, 11));
-      const minutes = parseInt(departureDateTime.substring(11, 13));
+        const year = parseInt(departureDateTime.substring(0, 4));
+        const month = parseInt(departureDateTime.substring(4, 6)) - 1;
+        const day = parseInt(departureDateTime.substring(6, 8));
+        const hours = parseInt(departureDateTime.substring(9, 11));
+        const minutes = parseInt(departureDateTime.substring(11, 13));
 
-      const correctDepartureDateTime = new Date(
-        year,
-        month,
-        day,
-        hours,
-        minutes
-      );
+        const correctDepartureDateTime = new Date(
+          year,
+          month,
+          day,
+          hours,
+          minutes
+        );
 
-      const formattedHours = parseInt(
-        departureTimeJourney["formattedTime"].substring(0, 2)
-      );
-      const formattedMinutes = parseInt(
-        departureTimeJourney["formattedTime"].substring(3, 5)
-      );
+        const formattedHours = parseInt(
+          departureTimeJourney["formattedTime"].substring(0, 2)
+        );
+        const formattedMinutes = parseInt(
+          departureTimeJourney["formattedTime"].substring(3, 5)
+        );
 
-      correctDepartureDateTime.setHours(formattedHours);
-      correctDepartureDateTime.setMinutes(formattedMinutes);
+        correctDepartureDateTime.setHours(formattedHours);
+        correctDepartureDateTime.setMinutes(formattedMinutes);
 
-      const departureTimeMillis = Date.parse(correctDepartureDateTime);
-      const timeUntilDeparture = departureTimeMillis - now;
+        const departureTimeMillis = Date.parse(correctDepartureDateTime);
+        const timeUntilDeparture = departureTimeMillis - now;
 
-      if (timeUntilDeparture >= 0) {
-        timeLeft.textContent =
-          "Part dans : " + formatCountdown(timeUntilDeparture - 1000);
+        if (timeUntilDeparture >= 0) {
+          timeLeft.textContent =
+            trainDuration +
+            ", Part dans : " +
+            formatCountdown(timeUntilDeparture - 1000);
 
-        if (timeUntilDeparture <= 0) {
+          if (timeUntilDeparture <= 0) {
+            clearInterval(countdownInterval);
+          }
+        } else {
+          timeLeft.textContent = "Le train est parti.";
           clearInterval(countdownInterval);
         }
-      } else {
-        timeLeft.textContent = "Le train est parti.";
-        clearInterval(countdownInterval);
-      }
-    }, 1000);
+      }, 1000);
+    }
 
     var svgSncf = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svgSncf.setAttribute("data-testid", "SNCF");
@@ -1159,12 +1263,74 @@ function displayJourneys(journeys, disruptions, from, to) {
     timeBlock.appendChild(timeLeft);
     timeBlock.appendChild(svgSncf);
     scheduleItem.appendChild(scheduleHeader);
+    departureInfo.innerHTML += `<a href="#${trainHeadSign}"><svg class="train-info" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"/></svg></a>`;
+
     scheduleItem.appendChild(timeBlock);
 
     scheduleContainer.appendChild(scheduleItem);
-    const trainStops = document.createElement("div");
-    trainStops.classList.add("train-stops");
-    scheduleItem.appendChild(trainStops);
+
+    const stopsHTML = journey.sections[1]["stop_date_times"]
+      .slice(1, -1)
+      .map((stop) => {
+        const departureDateTime = isDelayed
+          ? addDelayToDateTime(
+              stop.departure_date_time,
+              departureTimeJourney.delay
+            )
+          : stop.departure_date_time;
+
+        return `
+        <div class="step step-journey">
+            <p class="step-title">
+                <strong>${stop.stop_point.name}</strong>
+                <span class="step-time">${parseAndFormatDateTime(
+                  departureDateTime
+                )}</span>
+            </p>
+        </div>
+    `;
+      })
+      .join("");
+    let trainStatusModal;
+    let trainName = `<h1>${trainNetwork} N°${trainHeadSign}</h1>`;
+    if (isCancelled) {
+      trainStatusModal = "Annulé ❌";
+      trainName = `<h1 class="delayed">${trainNetwork} N°${trainHeadSign}</h1>`;
+    } else if (isDelayed === false) {
+      trainStatusModal = "À l'heure ✅";
+    } else {
+      trainStatusModal =
+        "Retardé de " + departureTimeJourney["delay"] + " minutes";
+    }
+    const trainStopsModal = document.createElement("a");
+    trainStopsModal.href = "#close";
+    trainStopsModal.innerHTML = `
+    <div id="${trainHeadSign}" class="modal-window">
+      <div>
+          <a href="#close" title="Fermer" class="modal-close">&times;</a>
+          ${trainName}
+          <p>Statut: ${trainStatusModal}</p>
+          <p>Durée: ${trainDuration}</p>
+          <div class="path-container">
+            <div class="path">
+              <div class="step step-journey">
+                <p class="step-title">
+                  <strong>${from}</strong>
+                  <span class="step-time">${departureTimeJourney["formattedTime"]}</span>
+                </p>
+              </div>
+              ${stopsHTML}
+              <div class="step step-journey">
+                <p class="step-title">
+                 <strong>${to}</strong>
+                 <span class="step-time">${arrivalTimeJourney["formattedTime"]}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>`;
+    scheduleItem.appendChild(trainStopsModal);
   });
   const lastTrainDeparture = journeys[journeys.length - 1].departure_date_time;
   const hiddenInput = document.getElementById("lastTrainDepartureInput");
@@ -1173,36 +1339,23 @@ function displayJourneys(journeys, disruptions, from, to) {
   }
 }
 
-function fetchTrainStops(trainId, destinationCell, departureStation) {
-  fetch(`https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`, {
-    method: "GET",
-    headers: { Authorization: apiKey },
-  })
+function fetchTrainStops(trainId) {
+  return fetch(
+    `https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`,
+    {
+      method: "GET",
+      headers: { Authorization: apiKey },
+    }
+  )
     .then(handleResponse)
     .then((data) => {
-      const stops = data.vehicle_journeys[0].stop_times.map((stop) =>
-        stop.stop_point.name.replace(/\s*-\s*/g, "-")
-      );
-      const departureIndex = stops.findIndex(
-        (stop) =>
-          stop.replace(/\s*-\s*/g, "") ===
-          departureStation.replace(/\s*-\s*/g, " ")
-      );
-      if (departureIndex !== -1) {
-        const stopsAfterDeparture = stops.slice(departureIndex + 1);
-        destinationCell.innerHTML = stopsAfterDeparture.join(" - ");
-      } else {
-        showToast(
-          "<strong>Erreur:</strong> Impossible de charger les arrêts de ce train.",
-          "danger"
-        );
-      }
+      const stops = data.vehicle_journeys[0].stop_times.map((stop) => ({
+        name: stop.stop_point.name.replace(/\s*-\s*/g, "-"),
+      }));
+      return stops;
     })
     .catch((error) => {
-      showToast(
-        "<strong>Erreur:</strong> Impossible de charger les arrêts de ce train.",
-        "danger"
-      );
+      console.error(error);
     });
 }
 

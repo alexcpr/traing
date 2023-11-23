@@ -329,10 +329,7 @@ h1 {
   -webkit-transition: -webkit-transform .2s;
   -o-transition: -o-transform .2s;
   -moz-transition: transform .2s, -moz-transform .2s;
-  transition: -webkit-transform .2s;
-  -moz-transition: transform .2s, -moz-transform .2s;
   transition: transform .2s;
-  transition: transform .2s, -webkit-transform .2s, -moz-transform .2s, -o-transform .2s;
   transition: transform .2s, -webkit-transform .2s;
   width: 20%
 }
@@ -348,7 +345,7 @@ h1 {
 
 .delayed {
   text-decoration: line-through;
-  color: red
+  color: red !important
 }
 
 .more-departures button {
@@ -365,44 +362,37 @@ h1 {
   color: var(--primary)
 }
 
-.schedule-item button {
-  font-weight: 700;
-  padding: 4px 10px;
-  font-size: 11px !important;
-  width: unset !important;
-  margin-left: 10px;
-  margin-bottom: 10px;
-  margin-top: 0
+.train-info {
+  position: absolute;
+  top: 5px;
+  right: 7.5px;
+  height: 30px;
+  width: 30px;
+  animation: transform 2s ease-in-out
+}
+
+.train-info:hover {
+  transform: scale(1.2)
+}
+
+.departure-direction {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-flow: column wrap;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-flow: column wrap;
+  flex-flow: column wrap
 }
 
 @media (max-width:768px) {
   .main-container {
     margin: 20px
-  }
-
-  .departure-direction {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-flow: column wrap;
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-    -ms-flex-flow: column wrap;
-    flex-flow: column wrap
-  }
-
-  .departure-arrow {
-    -webkit-transform: none !important;
-    -moz-transform: none !important;
-    -ms-transform: none !important;
-    -o-transform: none !important;
-    transform: none !important;
-    height: unset !important;
-    padding: 0 !important
   }
 
   .more-departures,
@@ -454,6 +444,12 @@ h1 {
   box-shadow: 0 0 10px rgba(0, 0, 0, .1)
 }
 
+.schedule-item a {
+  text-decoration: none;
+  color: inherit;
+  cursor: default
+}
+
 .schedule-header {
   display: -webkit-box;
   display: -webkit-flex;
@@ -478,7 +474,8 @@ h1 {
   -moz-box-direction: normal;
   -ms-flex-flow: row wrap;
   flex-flow: row wrap;
-  gap: 10px
+  gap: 10px;
+  position: relative
 }
 
 .schedule-container {
@@ -550,7 +547,8 @@ h1 {
   text-align: right;
   -webkit-flex-basis: 60%;
   -ms-flex-preferred-size: 60%;
-  flex-basis: 60%
+  flex-basis: 60%;
+  align-self: flex-end
 }
 
 .delay-cause {
@@ -580,17 +578,6 @@ h1 {
   line-height: 1.25rem;
   color: var(--text);
   font-weight: 400
-}
-
-.departure-arrow {
-  -webkit-transform: rotate(-90deg);
-  -moz-transform: rotate(-90deg);
-  -ms-transform: rotate(-90deg);
-  -o-transform: rotate(-90deg);
-  transform: rotate(-90deg);
-  height: 1.00012rem;
-  padding-left: .49962rem;
-  padding-right: .49962rem
 }
 
 .departure-arrow,
@@ -1017,4 +1004,157 @@ h1 {
 
 #journeyDate {
   width: 200px
+}
+
+.modal-window {
+  position: fixed;
+  background-color: rgba(0, 0, 0, .5);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 99999;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s
+}
+
+.modal-window:target {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto
+}
+
+.modal-close,
+.modal-window>div {
+  position: absolute;
+  text-align: center
+}
+
+.modal-window>div {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 2em;
+  background: #fff;
+  max-height: 60%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  border-radius: 1rem
+}
+
+.modal-window header {
+  font-weight: 700
+}
+
+.modal-window h1 {
+  font-size: 150%;
+  margin: 0;
+  color: var(--primary);
+  text-transform: uppercase
+}
+
+.modal-window>div>p {
+  margin: 5px 0;
+  font-style: italic;
+  font-size: 14px
+}
+
+.modal-close {
+  color: #aaa;
+  line-height: 50px;
+  font-size: 120%;
+  right: -15px;
+  top: -5px;
+  width: 70px;
+  text-decoration: none
+}
+
+.modal-close:hover {
+  color: #000
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  margin-left: 20px;
+  margin-bottom: 20px
+}
+
+.step-journey {
+  margin-left: 80px
+}
+
+.step::after,
+.step::before {
+  content: "";
+  position: absolute
+}
+
+.step::before {
+  top: -10px;
+  height: calc(100% + 20px);
+  width: 5px;
+  background: #ecf0f1;
+  left: -10px
+}
+
+.step::after {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: #cdd1d2;
+  left: -15px
+}
+
+.step:first-child::after {
+  top: -20px
+}
+
+.step:last-child::after {
+  top: 100%
+}
+
+.step:first-child p {
+  transform: translateY(calc(-100% - 5px))
+}
+
+.step:last-child p {
+  transform: translateY(calc(100% + 2.5px))
+}
+
+.step p {
+  top: 3.5px;
+  margin: 0 7.5px 7.5px;
+  white-space: nowrap
+}
+
+.step strong {
+  display: block;
+  text-align: center
+}
+
+.path-container {
+  display: flex;
+  justify-content: center;
+  flex-flow: row wrap;
+  margin-top: 50px
+}
+
+.step-title {
+  position: relative
+}
+
+.step-time {
+  position: absolute;
+  top: 50%;
+  left: -60px;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #777
 }
