@@ -1160,7 +1160,8 @@ function displayJourneys(journeys, disruptions, from, to) {
           timeLeft.innerHTML =
             trainDuration +
             "<span>Part dans : " +
-            formatCountdown(timeUntilDeparture - 1000) + "</span>";
+            formatCountdown(timeUntilDeparture - 1000) +
+            "</span>";
 
           if (timeUntilDeparture <= 0) {
             clearInterval(countdownInterval);
@@ -1355,6 +1356,12 @@ function displayJourneys(journeys, disruptions, from, to) {
       trainStatusModal =
         "Retardé de " + departureTimeJourney["delay"] + " minutes";
     }
+    const trainType =
+      journey.nb_transfers === 0
+        ? "Trajet direct"
+        : `${journey.nb_transfers} correspondance${
+            journey.nb_transfers > 1 ? "s" : ""
+          }`;
     const trainStopsModal = document.createElement("a");
     trainStopsModal.href = "#close";
     const modalDepartureTimeJourney = isDelayed
@@ -1371,6 +1378,7 @@ function displayJourneys(journeys, disruptions, from, to) {
           ${trainName}
           <p>Statut: ${trainStatusModal}</p>
           <p>Durée: ${trainDuration}</p>
+          <p>${trainType}</p>
           <div class="path-container">
             <div class="path">
               <div class="step step-journey">
