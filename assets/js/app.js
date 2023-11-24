@@ -324,7 +324,7 @@ function handleSearchJourney() {
   const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
   scheduleContainer.innerHTML = "";
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
+  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=1`;
   fetchJourneys(
     `${apiUrl}&datetime=${formattedJourneyDate}`,
     departureStationText,
@@ -1267,34 +1267,85 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     scheduleContainer.appendChild(scheduleItem);
 
-    const stopsHTML = journey.sections[1]["stop_date_times"]
-      .slice(1, -1)
-      .map((stop) => {
-        const departureDateTime = isDelayed
-          ? addDelayToDateTime(
-              stop.departure_date_time,
-              departureTimeJourney.delay
-            )
-          : stop.departure_date_time;
+    let stopsHTML;
 
-        const delayIndicator = isDelayed
-          ? `<span class="delayed">${parseAndFormatDateTime(
-              stop.departure_date_time
-            )}</span>`
-          : "";
+    if (journey.nb_transfers === 0) {
+      if (journey.sections[1] && journey.sections[1]["stop_date_times"]) {
+        stopsHTML = journey.sections[1]["stop_date_times"]
+          .slice(1, -1)
+          .map((stop) => {
+            const departureDateTime = isDelayed
+              ? addDelayToDateTime(
+                  stop.departure_date_time,
+                  departureTimeJourney.delay
+                )
+              : stop.departure_date_time;
 
-        return `
-      <div class="step step-journey">
-          <p class="step-title">
+            const delayIndicator = isDelayed
+              ? `<span class="delayed">${parseAndFormatDateTime(
+                  stop.departure_date_time
+                )}</span>`
+              : "";
+
+            return `
+          <div class="step step-journey">
+            <p class="step-title">
               <strong>${stop.stop_point.name}</strong>
               <span class="step-time">${delayIndicator}${parseAndFormatDateTime(
-          departureDateTime
-        )}</span>
-          </p>
-      </div>
-  `;
-      })
-      .join("");
+              departureDateTime
+            )}</span>
+            </p>
+          </div>`;
+          })
+          .join("");
+      }
+    } else {
+      stopsHTML = journey.sections
+        .flatMap((section) => {
+          if (section.type === "waiting") {
+            const waitingDuration = section.duration;
+            return `
+          <div class="step step-journey">
+            <p class="step-title">
+              <strong>Attente en gare</strong>
+              <span class="step-time">${formatDuration(waitingDuration)}</span>
+            </p>
+          </div>`;
+          } else if (section["stop_date_times"]) {
+            return section["stop_date_times"].map((stop) => {
+              if (
+                stop.stop_point.name === from ||
+                stop.stop_point.name === to
+              ) {
+                return "";
+              }
+              const departureDateTime = isDelayed
+                ? addDelayToDateTime(
+                    stop.departure_date_time,
+                    departureTimeJourney.delay
+                  )
+                : stop.departure_date_time;
+
+              const delayIndicator = isDelayed
+                ? `<span class="delayed">${parseAndFormatDateTime(
+                    stop.departure_date_time
+                  )}</span>`
+                : "";
+
+              return `
+              <div class="step step-journey">
+                <p class="step-title">
+                  <strong>${stop.stop_point.name}</strong>
+                  <span class="step-time">${delayIndicator}${parseAndFormatDateTime(
+                departureDateTime
+              )}</span>
+                </p>
+              </div>`;
+            });
+          }
+        })
+        .join("");
+    }
 
     let trainStatusModal;
     let trainName = `<h1>${trainNetwork} N°${trainHeadSign}</h1>`;
@@ -1459,7 +1510,7 @@ function renderStationButton(stationName, isFavorite) {
         const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
         scheduleContainer.innerHTML = "";
-        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`;
+        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=1`;
         fetchJourneys(
           `${apiUrl}&datetime=${formattedJourneyDate}`,
           departureStationText,
