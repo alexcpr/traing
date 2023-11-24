@@ -324,7 +324,7 @@ function handleSearchJourney() {
   const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
   scheduleContainer.innerHTML = "";
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=1`;
+  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
   fetchJourneys(
     `${apiUrl}&datetime=${formattedJourneyDate}`,
     departureStationText,
@@ -976,7 +976,6 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const scheduleItem = document.createElement("div");
     scheduleItem.classList.add("schedule-item");
-    scheduleItem.classList.add(`schedule-item-${index}`);
 
     const scheduleHeader = document.createElement("div");
     scheduleHeader.classList.add("schedule-header");
@@ -1510,7 +1509,7 @@ function renderStationButton(stationName, isFavorite) {
         const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
         scheduleContainer.innerHTML = "";
-        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=1`;
+        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`;
         fetchJourneys(
           `${apiUrl}&datetime=${formattedJourneyDate}`,
           departureStationText,
