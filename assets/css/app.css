@@ -635,7 +635,22 @@ h1 {
 }
 
 .time-left {
-  font-size: 1.2em
+  font-size: 1.2em;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-flow: column wrap;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+  -ms-flex-flow: column wrap;
+  flex-flow: column wrap;
+  -webkit-flex-basis: 80%;
+  -ms-flex-preferred-size: 80%;
+  flex-basis: 80%
 }
 
 #back-to-top-btn {
@@ -1064,9 +1079,6 @@ h1 {
   max-height: 60%;
   overflow-y: scroll;
   overflow-x: hidden;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
   -webkit-border-radius: 1rem;
   -moz-border-radius: 1rem;
   border-radius: 1rem;
@@ -1105,6 +1117,13 @@ h1 {
   color: #000
 }
 
+.modal-window>div,
+.step {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box
+}
+
 .step {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1117,9 +1136,6 @@ h1 {
   -ms-flex-align: center;
   align-items: center;
   position: relative;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
   width: 100%;
   margin-left: 20px;
   margin-bottom: 20px

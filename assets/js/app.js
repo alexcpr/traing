@@ -1124,7 +1124,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     if (isCancelled) {
       timeLeft.textContent = "Le train est annulé.";
     } else {
-      timeLeft.textContent = trainDuration + ", Part dans : ...";
+      timeLeft.innerHTML = trainDuration + "<span>Part dans : ...</span>";
 
       const countdownInterval = setInterval(() => {
         const now = new Date().getTime();
@@ -1157,10 +1157,10 @@ function displayJourneys(journeys, disruptions, from, to) {
         const timeUntilDeparture = departureTimeMillis - now;
 
         if (timeUntilDeparture >= 0) {
-          timeLeft.textContent =
+          timeLeft.innerHTML =
             trainDuration +
-            ", Part dans : " +
-            formatCountdown(timeUntilDeparture - 1000);
+            "<span>Part dans : " +
+            formatCountdown(timeUntilDeparture - 1000) + "</span>";
 
           if (timeUntilDeparture <= 0) {
             clearInterval(countdownInterval);
