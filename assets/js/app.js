@@ -989,7 +989,6 @@ function displayJourneys(journeys, disruptions, from, to) {
 
     const arrivalTimeBase = document.createElement("div");
     arrivalTimeBase.classList.add("departure-time");
-    arrivalTimeBase.style.order = "3";
 
     const departureDirection = document.createElement("div");
     departureDirection.classList.add("journey-direction");
@@ -1060,6 +1059,7 @@ function displayJourneys(journeys, disruptions, from, to) {
     departureDirection.appendChild(departureStation);
 
     departureInfo.appendChild(departureTimeBase);
+    departureInfo.appendChild(departureDirection);
     departureInfo.appendChild(arrivalTimeBase);
 
     var svgArrow = document.createElementNS(
@@ -1088,8 +1088,6 @@ function displayJourneys(journeys, disruptions, from, to) {
     departureDirection.appendChild(svgArrow);
 
     departureDirection.appendChild(arrivalStation);
-
-    departureInfo.appendChild(departureDirection);
 
     scheduleHeader.appendChild(departureInfo);
 
