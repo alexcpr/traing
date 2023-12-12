@@ -323,12 +323,12 @@ function handleSearchJourney() {
 
   const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-  scheduleContainer.innerHTML = "";
   apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
   fetchJourneys(
     `${apiUrl}&datetime=${formattedJourneyDate}`,
     departureStationText,
-    arrivalStationText
+    arrivalStationText,
+    true
   );
 }
 
@@ -565,10 +565,203 @@ function secondsToMinutes(seconds) {
   return minutes;
 }
 
-function fetchTrainDepartures(apiUrl, stationName) {
+function fetchTrainDepartures(apiUrl, stationName, first = false) {
+  const insertPos = first ? "afterbegin" : "beforeend";
+  scheduleContainer.insertAdjacentHTML(
+    insertPos,
+    `<div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>`
+  );
   fetch(apiUrl, { method: "GET", headers: { Authorization: apiKey } })
     .then(handleResponse)
     .then((data) => {
+      if (first) {
+        scheduleContainer.innerHTML = "";
+      } else {
+        scheduleContainer
+          .querySelectorAll(".placeholder-item")
+          .forEach(function (item) {
+            item.remove();
+          });
+      }
       displayDepartures(data.departures, stationName);
       moreDeparturesButton.style.display =
         data.departures.length > 0 ? "block" : "none";
@@ -576,10 +769,213 @@ function fetchTrainDepartures(apiUrl, stationName) {
     .catch(handleError);
 }
 
-function fetchJourneys(apiUrl, fromName, toName) {
+function fetchJourneys(apiUrl, fromName, toName, first = false) {
+  const insertPos = first ? "afterbegin" : "beforeend";
+  scheduleContainer.insertAdjacentHTML(
+    insertPos,
+    `<div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>
+  <div class="schedule-item placeholder-item">
+      <div class="schedule-header placeholder-journey-header">
+          <div class="departure-info">
+              <div class="departure-time loading-placeholder"><span>12:00</span></div>
+              <div class="departure-direction">
+                  <span class="departure-station loading-placeholder">Strasbourg</span>
+                  <div class="departure-arrow loading-placeholder"></div>
+                  <span class="departure-station loading-placeholder">Paris Est</span>
+              </div>
+              <div class="departure-time loading-placeholder"><span>14:00</span></div>
+              <div class="train-info loading-placeholder"></div>
+          </div>
+          <span class="train-code loading-placeholder">TGV INOUI 2239</span>
+      </div>
+      <div class="time-block placeholder-journey-time-block">
+          <div class="loading-placeholder">Part dans : 10:00 minutes</div>
+          <div class="sncf-logo loading-placeholder"></div>
+      </div>
+  </div>`
+  );
   fetch(apiUrl, { method: "GET", headers: { Authorization: apiKey } })
     .then(handleResponse)
     .then((data) => {
+      if (first) {
+        scheduleContainer.innerHTML = "";
+      } else {
+        scheduleContainer
+          .querySelectorAll(".placeholder-item")
+          .forEach(function (item) {
+            item.remove();
+          });
+      }
       const disruptions = data.disruptions;
       const journeys = data.journeys;
       displayJourneys(journeys, disruptions, fromName, toName);
@@ -1514,17 +1910,16 @@ function renderStationButton(stationName, isFavorite) {
 
         const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-        scheduleContainer.innerHTML = "";
         apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`;
         fetchJourneys(
           `${apiUrl}&datetime=${formattedJourneyDate}`,
           departureStationText,
-          arrivalStationText
+          arrivalStationText,
+          true
         );
       } else {
         apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
-        scheduleContainer.innerHTML = "";
-        fetchTrainDepartures(apiUrl, stationName);
+        fetchTrainDepartures(apiUrl, stationName, true);
       }
     }
   });
