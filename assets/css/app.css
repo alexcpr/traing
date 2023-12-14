@@ -236,15 +236,19 @@
   --border: #ffffff
 }
 
+html {
+  position: relative;
+  min-height: 100%
+}
+
 body {
   font-family: Arial, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   margin: 0;
-  padding: 0;
   background-color: var(--background);
-  min-height: 100vh;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
-  box-sizing: border-box
+  box-sizing: border-box;
+  padding: 0 0 160px
 }
 
 .main-container {
@@ -314,6 +318,7 @@ h1 {
   -o-transition: -o-transform .2s;
   -moz-transition: transform .2s, -moz-transform .2s;
   transition: -webkit-transform .2s;
+  -moz-transition: transform .2s, -moz-transform .2s;
   transition: transform .2s;
   transition: transform .2s, -webkit-transform .2s, -moz-transform .2s, -o-transform .2s;
   transition: transform .2s, -webkit-transform .2s;
@@ -1231,7 +1236,8 @@ h1 {
   overflow: hidden
 }
 
-.train-info.loading-placeholder {
+.train-info.loading-placeholder,
+footer {
   position: absolute
 }
 
@@ -1272,6 +1278,7 @@ h1 {
   background: -moz-linear-gradient(left, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background: -o-linear-gradient(left, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background: -webkit-gradient(linear, left top, right top, color-stop(25%, #f0f0f0), color-stop(50%, #e0e0e0), color-stop(75%, #f0f0f0));
+  background: -webkit-gradient(linear, left top, right top, color-stop(25%, #f0f0f0), color-stop(50%, #e0e0e0), color-stop(75%, #f0f0f0));
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   -moz-background-size: 200% 100%;
   background-size: 200% 100%;
@@ -1303,4 +1310,31 @@ h1 {
 
 .departure-station.loading-placeholder {
   width: 100px
+}
+
+footer {
+  background-color: #141414;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0
+}
+
+footer p {
+  font-size: 14px;
+  color: #fff
+}
+
+footer a {
+  text-decoration: none;
+  font-style: italic;
+  -webkit-transition: color .3s ease-in-out;
+  -o-transition: color .3s ease-in-out;
+  -moz-transition: color .3s ease-in-out;
+  transition: color .3s ease-in-out;
+  color: #ccc
+}
+
+footer a:hover {
+  color: #007aff
 }
