@@ -1051,12 +1051,16 @@ h1 {
   padding: 2em;
   background: var(--background);
   max-height: 60%;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow: scroll;
   -webkit-border-radius: 1rem;
   -moz-border-radius: 1rem;
   border-radius: 1rem;
-  min-width: 20%
+  min-width: 20%;
+  max-width: 80%
+}
+
+.path {
+  max-width: 100%
 }
 
 .modal-window header {
