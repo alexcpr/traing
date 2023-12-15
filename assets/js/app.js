@@ -3171,9 +3171,9 @@ function initialize() {
   }
   initializeSelect2(
     "#journeyDepartureStation",
-    "Choississez une gare de départ"
+    "Strasbourg"
   );
-  initializeSelect2("#journeyArrivalStation", "Choississez une gare d'arrivée");
+  initializeSelect2("#journeyArrivalStation", "Paris Est");
 
   $(document).on("select2:open", () => {
     document.querySelector(".select2-search__field").focus();
@@ -3328,6 +3328,7 @@ function handleMoreDepartures() {
 
 function initializeSelect2(elementId, placeholderText) {
   $(elementId).select2({
+    width: '250px',
     allowClear: true,
     placeholder: placeholderText,
     sorter: (data) => data.sort((a, b) => a.text.localeCompare(b.text)),
