@@ -3289,7 +3289,7 @@ function handleSearchJourney() {
 
   apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`);
   fetchJourneys(
-    `${apiUrl}&datetime=${formattedJourneyDate}`,
+    apiUrl + encodeURIComponent(`&datetime=${formattedJourneyDate}`),
     departureStationText,
     arrivalStationText,
     true
@@ -3314,7 +3314,7 @@ function handleMoreDepartures() {
       ".schedule-container .schedule-item:last-child .departure-station"
     );
     const arrivalStationName = allDepartureStations[1].textContent;
-    apiUrlWithDatetime = `${apiUrl}&datetime=${lastTrainDepartureTime}`;
+    apiUrlWithDatetime = apiUrl + encodeURIComponent(`&datetime=${lastTrainDepartureTime}`);
     fetchJourneys(apiUrlWithDatetime, departureStationName, arrivalStationName);
   } else {
     const stationName = document.querySelector(
@@ -4873,7 +4873,7 @@ function renderStationButton(stationName, isFavorite) {
 
         apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`);
         fetchJourneys(
-          `${apiUrl}&datetime=${formattedJourneyDate}`,
+          apiUrl + encodeURIComponent(`&datetime=${formattedJourneyDate}`),
           departureStationText,
           arrivalStationText,
           true
