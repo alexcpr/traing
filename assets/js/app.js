@@ -3132,7 +3132,6 @@ const stationCodes = {
   "Pont-Saint-Esprit": "87764555",
 };
 
-const apiKey = "46bb7fe8-44d8-482d-9cb5-eadba28a5209";
 let apiUrl = "";
 
 const scheduleContainer = document.querySelector(".schedule-container");
@@ -3288,7 +3287,7 @@ function handleSearchJourney() {
 
   const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-  apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`;
+  apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`);
   fetchJourneys(
     `${apiUrl}&datetime=${formattedJourneyDate}`,
     departureStationText,
@@ -3716,7 +3715,7 @@ function fetchTrainDepartures(apiUrl, stationName, first = false) {
       </div>
   </div>`
   );
-  fetch(apiUrl, { method: "GET", headers: { Authorization: apiKey } })
+  fetch(apiUrl)
     .then(handleResponse)
     .then((data) => {
       if (first) {
@@ -3930,7 +3929,7 @@ function fetchJourneys(apiUrl, fromName, toName, first = false) {
       </div>
   </div>`
   );
-  fetch(apiUrl, { method: "GET", headers: { Authorization: apiKey } })
+  fetch(apiUrl)
     .then(handleResponse)
     .then((data) => {
       if (first) {
@@ -4771,11 +4770,7 @@ function displayJourneys(journeys, disruptions, from, to) {
 
 function fetchTrainStops(trainId) {
   return fetch(
-    `https://api.sncf.com/v1/coverage/sncf/vehicle_journeys/${trainId}`,
-    {
-      method: "GET",
-      headers: { Authorization: apiKey },
-    }
+    'https://traing.fr/api?call=' + encodeURIComponent(`vehicle_journeys/${trainId}`)
   )
     .then(handleResponse)
     .then((data) => {
@@ -4876,7 +4871,7 @@ function renderStationButton(stationName, isFavorite) {
 
         const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-        apiUrl = `https://api.sncf.com/v1/coverage/sncf/journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`;
+        apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`);
         fetchJourneys(
           `${apiUrl}&datetime=${formattedJourneyDate}`,
           departureStationText,
@@ -4884,7 +4879,7 @@ function renderStationButton(stationName, isFavorite) {
           true
         );
       } else {
-        apiUrl = `https://api.sncf.com/v1/coverage/sncf/stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`;
+        apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`);
         fetchTrainDepartures(apiUrl, stationName, true);
       }
     }
