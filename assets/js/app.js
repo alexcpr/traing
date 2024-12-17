@@ -3287,7 +3287,7 @@ function handleSearchJourney() {
 
   const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-  apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`);
+  apiUrl = '/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${departureStationVal}&to=stop_area%3ASNCF%3A${arrivalStationVal}&count=10`);
   fetchJourneys(
     apiUrl + encodeURIComponent(`&datetime=${formattedJourneyDate}`),
     departureStationText,
@@ -4770,7 +4770,7 @@ function displayJourneys(journeys, disruptions, from, to) {
 
 function fetchTrainStops(trainId) {
   return fetch(
-    'https://traing.fr/api?call=' + encodeURIComponent(`vehicle_journeys/${trainId}`)
+    '/api?call=' + encodeURIComponent(`vehicle_journeys/${trainId}`)
   )
     .then(handleResponse)
     .then((data) => {
@@ -4871,7 +4871,7 @@ function renderStationButton(stationName, isFavorite) {
 
         const formattedJourneyDate = journeyDate.replace(/[-:]/g, "");
 
-        apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`);
+        apiUrl = '/api?call=' + encodeURIComponent(`journeys?from=stop_area%3ASNCF%3A${stationCodes[departureStationText]}&to=stop_area%3ASNCF%3A${stationCodes[arrivalStationText]}&count=10`);
         fetchJourneys(
           apiUrl + encodeURIComponent(`&datetime=${formattedJourneyDate}`),
           departureStationText,
@@ -4879,7 +4879,7 @@ function renderStationButton(stationName, isFavorite) {
           true
         );
       } else {
-        apiUrl = 'https://traing.fr/api?call=' + encodeURIComponent(`stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`);
+        apiUrl = '/api?call=' + encodeURIComponent(`stop_areas/stop_area:SNCF:${stationCodes[stationName]}/departures`);
         fetchTrainDepartures(apiUrl, stationName, true);
       }
     }
